@@ -1,0 +1,18 @@
+service: test-svc
+
+provider:
+  name: aws
+  runtime: python3.7
+
+functions:
+  hello:
+    handler: hello.handler
+  world:
+    handler: world.handler
+    events:
+      - http:
+          path: /
+          method: get
+
+plugins:
+- serverless-localhost

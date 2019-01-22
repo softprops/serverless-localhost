@@ -1,0 +1,70 @@
+{
+    "name": "serverless-localhost",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/softprops/serverless-localhost.git"
+    },
+    "license": "MIT",
+    "displayName": "serverless-localhost",
+    "description": "Runs a local http server used to trigger you http functions in any runtime",
+    "version": "0.1.1",
+    "categories": [
+        "Other"
+    ],
+    "main": "dist/index.js",
+    "files": [
+        "dist",
+        "package.json",
+        "README.md"
+    ],
+    "scripts": {
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run lint",
+        "test": "nyc --reporter=lcov mocha --require ts-node/register --require source-map-support/register --recursive tests/*.ts",
+        "lint": "tslint -c tslint.json 'src/**/*.ts'"
+    },
+    "nyc": {
+        "include": [
+            "src/**/*.ts",
+            "src/**/*.tsx"
+        ],
+        "extension": [
+            ".ts",
+            ".tsx"
+        ],
+        "exclude": [
+            "**/*.d.ts"
+        ],
+        "require": [
+            "ts-node/register"
+        ],
+        "reporter": [
+            "text-summary",
+            "html"
+        ],
+        "sourceMap": true,
+        "instrument": true
+    },
+    "dependencies": {
+        "dockerode": "^2.5.8",
+        "express": "^4.16.4",
+        "serverless": "^1.36.1"
+    },
+    "devDependencies": {
+        "@types/chai": "^4.1.7",
+        "@types/chai-as-promised": "^7.1.0",
+        "@types/dockerode": "^2.5.10",
+        "@types/express": "^4.16.0",
+        "@types/mocha": "^5.2.5",
+        "@types/node": "^10.12.18",
+        "chai": "^4.2.0",
+        "chai-as-promised": "^7.1.1",
+        "mocha": "^5.2.0",
+        "nyc": "^13.1.0",
+        "source-map-support": "^0.5.10",
+        "ts-node": "^7.0.1",
+        "tslint": "^5.12.1",
+        "typescript": "^3.2.4"
+    }
+}

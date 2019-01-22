@@ -1,0 +1,8 @@
+node_modules
+.DS_Store
+.serverless
+dist
+*.log
+coverage
+.nyc_output
+__pycache__
