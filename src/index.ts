@@ -47,7 +47,7 @@ export = class Localhost {
             var type = header.readUInt8(0);
             var payload = bufferStream.read(header.readUInt32BE(4));
             if (payload === null) { break; }
-            if (type == 2) {
+            if (type === 2) {
                 stderr(payload);
             } else {
                 stdout(payload);
