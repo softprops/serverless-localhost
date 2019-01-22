@@ -50,12 +50,11 @@ export = class Localhost {
                         method: split[0],
                         path: split[1]
                     };
-                } else {
-                    return {
-                        method: event['http'].method,
-                        path: event['http'].path
-                    };
                 }
+                return {
+                    method: http.method,
+                    path: http.path
+                };
             })
         };
     }

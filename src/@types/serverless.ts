@@ -22,9 +22,7 @@ export interface ServerlessInstance {
             name: string;
             runtime?: string;
         };
-        package?: {
-            artifact?: string
-        };
+        package?: Package;
         getAllFunctions: () => string[];
         functions: { [key: string]: FunctionConfig };
     };
@@ -38,6 +36,12 @@ export interface FunctionConfig {
     handler: string;
     runtime?: string;
     events?: { [key: string]: any }[];
+    package?: Package;
+}
+
+export interface Package {
+    artifact?: string;
+    disable?: boolean;
 }
 
 export interface Provider {
