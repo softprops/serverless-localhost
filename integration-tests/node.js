@@ -1,6 +1,7 @@
 module.exports.handler = (event, context, callback) => {
   callback(null, {
-    httpStatus: 200,
+    statusCode: 200,
+    headers: { 'Content-Type': 'text/plain' },
     body: "Hello node"
   });
 }

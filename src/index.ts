@@ -119,8 +119,10 @@ export = class Localhost {
     respond(funcResponse: string, response: express.Response) {
         // expect apigateway contract to be hold here
         // todo: deal with error
-        const json = JSON.parse(funcResponse);
-        return response.status(json.statusCode).send(json.body);
+        if (funcResponse && funcResponse.length > 0) {
+            const json = JSON.parse(funcResponse);
+            response.status(json.statusCode).send(json.body);
+        }
     }
 
     dockerImage(runtime: string) {
@@ -171,16 +173,25 @@ export = class Localhost {
                     const dockerImage = this.dockerImage(func.runtime);
                     // todo: pull container first to ensure it exists
                     this.serverless.cli.log(`Pulling ${dockerImage} image...`);
-                    let progress = await docker.pull(dockerImage, { tag: func.runtime });
-                    docker.modem.followProgress(progress, (err, out) => {
-                        console.log("done pulling");
-                    }, (event) => {
-                        console.log(`Pull...`);
-                        console.log(event);
-                    });
+                    await (new Promise((resolve) => {
+                        docker.pull(dockerImage, {}, (err, stream) => {
+                            docker.modem.followProgress(stream, (err, out) => {
+                                resolve();
+                            }, function(event) {
+                                process.stdout.write(
+                                    `\r${event.status} ${event.id || ""} ${event.progress || ""}`
+                                );
+                            });
+                        });
+                    }));
 
                     this.serverless.cli.log(`Creating container...`);
-                    let event = JSON.stringify(this.apigwEvent(request, "dev"));
+                    let event = JSON.stringify(
+                        this.apigwEvent(
+                            request,
+                            this.serverless.getProvider(svc.provider.name).getStage()
+                        )
+                    );
                     let container = await docker.createContainer({
                         Image: dockerImage,
                         Volumes: {
@@ -216,7 +227,7 @@ export = class Localhost {
                             process.stderr.write(data);
                         },
                         (data: any) => {
-                            const str = data.toString("utf8");
+                            const str = data.toString("utf8").trim();
                             this.respond(str, response);
                         }
                     );

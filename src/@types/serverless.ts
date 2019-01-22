@@ -25,7 +25,7 @@ export interface ServerlessInstance {
         getAllFunctions: () => string[];
         functions: { [key: string]: FunctionConfig };
     };
-
+    getProvider(name: string): Provider;
 }
 
 export interface FunctionConfig {
