@@ -22,10 +22,16 @@ export interface ServerlessInstance {
             name: string;
             runtime?: string;
         };
+        package?: {
+            artifact?: string
+        };
         getAllFunctions: () => string[];
         functions: { [key: string]: FunctionConfig };
     };
     getProvider(name: string): Provider;
+    pluginManager: {
+        spawn(cmd: string, options?: object): Promise<void>
+    };
 }
 
 export interface FunctionConfig {

@@ -75,6 +75,14 @@ export = class Localhost {
         if ("aws" !== providerName) {
             throw Error(`Provider ${providerName} is not supported`);
         }
+
+        // package artifacts
+        //
+        // https://gist.github.com/HyperBrain/50d38027a8f57778d5b0f135d80ea406
+        //
+        this.serverless.cli.log(`Packaging ${svc.service} functions for local deployment...`);
+        await this.serverless.pluginManager.spawn("package");
+
         this.serverless.cli.log("Starting server...");
         const funcs = svc.getAllFunctions().reduce<HttpFunc[]>(
             (httpFuncs, name) => {
