@@ -1,7 +1,7 @@
 import { CommandDescription, ServerlessInstance, ServerlessOptions, FunctionConfig } from './@types/serverless';
 import * as express from 'express';
 import * as Dockerode from 'dockerode';
-import * as stream from 'stream';
+import { demux, runtimeImage, pull, containerArgs } from './docker';
 
 interface HttpFunc {
     name: string;
@@ -34,26 +34,6 @@ export = class Localhost {
         this.hooks = {
             'localhost:start:start': this.start.bind(this)
         };
-    }
-
-    demux(logs: Buffer, stderr: (d: any) => void, stdout: (d: any) => void) {
-        // https://github.com/apocas/docker-modem/blob/7ec7abeb6b0cf7192d29667b397d292fe9f6e3ca/lib/modem.js#L296
-        // when we're not `following` the logs we get a buffer. dockerode doesn't provide a helpful
-        // way do demux that hence the following...
-        var bufferStream = new stream.PassThrough();
-        bufferStream.end(logs);
-        let header = bufferStream.read(8);
-        while (header !== null) {
-            var type = header.readUInt8(0);
-            var payload = bufferStream.read(header.readUInt32BE(4));
-            if (payload === null) { break; }
-            if (type === 2) {
-                stderr(payload);
-            } else {
-                stdout(payload);
-            }
-            header = bufferStream.read(8);
-        }
     }
 
     apigwEvent(request: express.Request, stage: string) {
@@ -125,11 +105,6 @@ export = class Localhost {
         }
     }
 
-    dockerImage(runtime: string) {
-        // https://hub.docker.com/r/lambci/lambda/tags
-        return `lambci/lambda:${runtime}`;
-    }
-
     async start() {
         const svc = this.serverless.service;
         const providerName = svc.provider.name;
@@ -169,21 +144,10 @@ export = class Localhost {
                 );
                 await app.get(event.path, async (request, response) => {
                     // set up container
-                    // https://hub.docker.com/r/lambci/lambda/tags
-                    const dockerImage = this.dockerImage(func.runtime);
+                    const dockerImage = runtimeImage(func.runtime);
                     // todo: pull container first to ensure it exists
                     this.serverless.cli.log(`Pulling ${dockerImage} image...`);
-                    await (new Promise((resolve) => {
-                        docker.pull(dockerImage, {}, (err, stream) => {
-                            docker.modem.followProgress(stream, (err, out) => {
-                                resolve();
-                            }, function(event) {
-                                process.stdout.write(
-                                    `\r${event.status} ${event.id || ""} ${event.progress || ""}`
-                                );
-                            });
-                        });
-                    }));
+                    await pull(docker, dockerImage);
 
                     this.serverless.cli.log(`Creating container...`);
                     let event = JSON.stringify(
@@ -192,21 +156,13 @@ export = class Localhost {
                             this.serverless.getProvider(svc.provider.name).getStage()
                         )
                     );
-                    let container = await docker.createContainer({
-                        Image: dockerImage,
-                        Volumes: {
-                            '/var/task': {}
-                        },
-                        // todo: what ever else lambci expects
-                        HostConfig: {
-                            Binds: [`${process.cwd()}:/var/task:ro`]
-                        },
-                        // todo: what ever else lambci expects
-                        Env: [
-                            `AWS_LAMBDA_FUNCTION_HANDLER=${func.handler}`,
-                            `AWS_LAMBDA_EVENT_BODY=${event}`
-                        ]
-                    });
+                    let container = await docker.createContainer(
+                        containerArgs(
+                            dockerImage,
+                            event,
+                            func.handler
+                        )
+                    );
 
                     // start container
                     this.serverless.cli.log(`Starting container...`);
@@ -222,7 +178,7 @@ export = class Localhost {
                         stdout: true,
                         stderr: true
                     });
-                    this.demux((logs as unknown) as Buffer,
+                    demux((logs as unknown) as Buffer,
                         (data: any) => {
                             process.stderr.write(data);
                         },
