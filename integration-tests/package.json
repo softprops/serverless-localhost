@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "serverless": "^1.36.2"
+  },
+  "devDependencies": {
+    "serverless-localhost": ".."
   }
 }
