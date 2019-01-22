@@ -13,6 +13,13 @@ functions:
       - http:
           path: /
           method: get
+  js:
+    handler: node.handler
+    runtime: nodejs8.10
+    events:
+      - http:
+          path: /foo/:bar
+          method: get
 
 plugins:
 - serverless-localhost

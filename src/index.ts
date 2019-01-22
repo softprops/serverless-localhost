@@ -170,6 +170,15 @@ export = class Localhost {
                     // https://hub.docker.com/r/lambci/lambda/tags
                     const dockerImage = this.dockerImage(func.runtime);
                     // todo: pull container first to ensure it exists
+                    this.serverless.cli.log(`Pulling ${dockerImage} image...`);
+                    let progress = await docker.pull(dockerImage, { tag: func.runtime });
+                    docker.modem.followProgress(progress, (err, out) => {
+                        console.log("done pulling");
+                    }, (event) => {
+                        console.log(`Pull...`);
+                        console.log(event);
+                    });
+
                     this.serverless.cli.log(`Creating container...`);
                     let event = JSON.stringify(this.apigwEvent(request, "dev"));
                     let container = await docker.createContainer({
@@ -203,7 +212,9 @@ export = class Localhost {
                         stderr: true
                     });
                     this.demux((logs as unknown) as Buffer,
-                        process.stderr.write,
+                        (data: any) => {
+                            process.stderr.write(data);
+                        },
                         (data: any) => {
                             const str = data.toString("utf8");
                             this.respond(str, response);
