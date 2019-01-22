@@ -116,7 +116,8 @@ export = class Localhost {
                 await app.get(event.path, async (request, response) => {
                     // set up container
                     const dockerImage = runtimeImage(func.runtime);
-                    // todo: pull container first to ensure it exists
+
+                    // todo: pull only in cases where a container create fails
                     this.serverless.cli.log(`Pulling ${dockerImage} image...`);
                     await pull(docker, dockerImage);
 
