@@ -23,7 +23,7 @@ export = class Localhost {
         this.options = options;
         this.commands = {
             localhost: {
-                usage: "Runs a local http server similating API Gatway triggering you http functions",
+                usage: "Runs a local http server similating API Gatway triggering your http functions",
                 commands: {
                     start: {
                         usage: "Starts the server",
