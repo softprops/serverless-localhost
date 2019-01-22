@@ -49,7 +49,6 @@ export interface Provider {
 }
 
 export interface ServerlessOptions {
-    function?: string;
+    port?: number;
     watch?: boolean;
-    extraServicePath?: string;
 }

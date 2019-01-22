@@ -27,7 +27,13 @@ export = class Localhost {
                 commands: {
                     start: {
                         usage: "Starts the server",
-                        lifecycleEvents: ["start"]
+                        lifecycleEvents: ["start"],
+                        options: {
+                            port: {
+                                usage: 'Port to listen on. Default: 3000',
+                                shortcut: 'P',
+                            },
+                        }
                     }
                 }
             }
@@ -168,7 +174,7 @@ export = class Localhost {
 
         return new Promise((resolve) =>
             app.listen(
-                port, () => {
+                this.options.port || 3000, () => {
                     this.serverless.cli.log(`Listening on port ${port}...`);
                     resolve();
                 }
