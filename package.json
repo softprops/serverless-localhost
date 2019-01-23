@@ -22,7 +22,7 @@
         "coverage": "nyc report --reporter=text-lcov | coveralls",
         "lint": "tslint -c tslint.json 'src/**/*.ts'",
         "pretest": "npm run lint",
-        "test": "nyc mocha --require ts-node/register --require source-map-support/register --recursive tests/*.ts",
+        "test": "nyc --require ts-node/register --require source-map-support/register mocha  --recursive tests/*.ts",
         "watch": "tsc -watch -p ./"
     },
     "nyc": {
