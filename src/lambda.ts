@@ -1,5 +1,11 @@
 import * as express from 'express';
 
+export function errorLike(payload: object): boolean {
+    // https://aws.amazon.com/blogs/compute/error-handling-patterns-in-amazon-api-gateway-and-aws-lambda/
+    const fields = ["errorMessage", "errorType", "stackTrace"];
+    return fields.every(f => f in payload) || "errorMessage" in payload;
+}
+
 export function apigwEvent(request: express.Request, stage: string) {
     return {
         httpMethod: request.method,

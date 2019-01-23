@@ -2,7 +2,7 @@ import { CommandDescription, ServerlessInstance, ServerlessOptions, FunctionConf
 import * as express from 'express';
 import * as Dockerode from 'dockerode';
 import { demux, runtimeImage, pull, containerArgs } from './docker';
-import { apigwEvent } from './lambda';
+import { apigwEvent, errorLike } from './lambda';
 import { translatePath, translateMethod } from "./http";
 import * as debug from 'debug';
 
@@ -37,7 +37,7 @@ export = class Localhost {
         this.options = options;
         this.commands = {
             localhost: {
-                usage: "Runs a local http server similating API Gatway triggering your http functions",
+                usage: "Runs a local http server simulating API Gateway, triggering your http functions on demand",
                 commands: {
                     start: {
                         usage: "Starts the server",
@@ -80,8 +80,7 @@ export = class Localhost {
     }
 
     respond(funcResponse: string, response: express.Response) {
-        // expect apigateway contract to be hold here
-        // todo: deal with error
+        this.debug(`raw function response '${funcResponse}'`);
 
         // stdout stream may contain other data, response should be the last line
         const lastLine = funcResponse.lastIndexOf('\n');
@@ -89,11 +88,15 @@ export = class Localhost {
             console.log(funcResponse.substring(lastLine).trim());
             funcResponse = funcResponse.substring(0, lastLine).trim();
         }
-        this.debug(`function response ${funcResponse}`);
         const json = JSON.parse(funcResponse);
-        const status = json.statusCode || 200;
-        const contentType = (json.headers || {})["Content-Type"] || "application/json";
-        response.status(status).type(contentType).send(json.body);
+        if (errorLike(json)) {
+            this.debug(`function invocation yieled unhandled error`);
+            response.status(500).type("application/json").send(json);
+        } else {
+            const status = json.statusCode || 200;
+            const contentType = (json.headers || {})["Content-Type"] || "application/json";
+            response.status(status).type(contentType).send(json.body);
+        }
     }
 
     httpFunctions(): HttpFunc[] {
@@ -152,6 +155,7 @@ export = class Localhost {
         );
 
         const app = express();
+        app.disable('x-powered-by');
         for (let func of funcs) {
             for (let event of func.events) {
                 await app[event.method](event.path, async (request: express.Request, response: express.Response) => {
