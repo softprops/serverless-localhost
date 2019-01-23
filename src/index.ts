@@ -11,6 +11,20 @@ interface HttpFunc {
     events: { method: string, path: string }[];
 }
 
+function translatePath(apiGatewayPath: string): string {
+    return apiGatewayPath;
+}
+
+function trap(sig: NodeJS.Signals): Promise<NodeJS.Signals> {
+    return new Promise(resolve => {
+        process.on(sig, () => resolve(sig));
+    });
+}
+
+function trapall(): Promise<NodeJS.Signals> {
+    return Promise.race([trap('SIGINT'), trap("SIGTERM")]);
+}
+
 export = class Localhost {
 
     readonly serverless: ServerlessInstance;
@@ -54,12 +68,12 @@ export = class Localhost {
                     const split = http.split(' ');
                     return {
                         method: split[0],
-                        path: split[1]
+                        path: translatePath(split[1])
                     };
                 }
                 return {
                     method: http.method,
-                    path: http.path
+                    path: translatePath(http.path)
                 };
             })
         };
@@ -85,10 +99,10 @@ export = class Localhost {
         //
         // https://gist.github.com/HyperBrain/50d38027a8f57778d5b0f135d80ea406
         //
-        this.serverless.cli.log(`Packaging ${svc.service} functions for local deployment...`);
-        await this.serverless.pluginManager.spawn("package");
+        //this.serverless.cli.log(`Packaging ${svc.service} functions for local deployment...`);
+        //await this.serverless.pluginManager.spawn("package");
 
-        this.serverless.cli.log("Starting server...");
+
         const funcs = svc.getAllFunctions().reduce<HttpFunc[]>(
             (httpFuncs, name) => {
                 let func = svc.functions[name];
@@ -105,7 +119,7 @@ export = class Localhost {
             }, []
         );
         if (!funcs) {
-            throw Error(`This serverless service has not http functions`);
+            throw Error(`This serverless service has no http functions`);
         }
         const app = express();
         const port = 3000;
@@ -113,13 +127,21 @@ export = class Localhost {
             socketPath: '/var/run/docker.sock'
         });
         // is docker daemon available? if not, what then?
-        await docker.ping();
+        await docker.ping().catch(
+            (e) => {
+                throw new Error(
+                    'Unable to communicate to docker. \n' +
+                    `   Error: ${e.message}\n` +
+                    '  Follow https://docs.docker.com/get-started/ to make sure you have docker installed \n'
+                );
+            }
+        );
         for (let func of funcs) {
             for (let event of func.events) {
                 this.serverless.cli.log(
                     `Mounting ${func.name} (${func.runtime} handler ${func.handler}) to ${event.method} ${event.path}`
                 );
-                await app.get(event.path, async (request, response) => {
+                await app[event.method](event.path, async (request: express.Request, response: express.Response) => {
                     // set up container
                     const dockerImage = runtimeImage(func.runtime);
 
@@ -172,26 +194,18 @@ export = class Localhost {
             }
         }
 
-        return new Promise((resolve) =>
-            app.listen(
+        return new Promise((resolve) => {
+            this.serverless.cli.log("Starting server...");
+            return app.listen(
                 this.options.port || 3000, () => {
                     this.serverless.cli.log(`Listening on port ${port}...`);
                     resolve();
                 }
-            )
-        ).then(() => {
-            // keep this serverless command exec going until user quits a session
-            const sigint = new Promise(resolve => {
-                process.on('SIGINT', () => resolve('SIGINT'));
-            });
-
-            const sigterm = new Promise(resolve => {
-                process.on('SIGTERM', () => resolve('SIGTERM'));
-            });
-
-            return Promise.race([sigint, sigterm]).then(sig => {
+            );
+        }).then(() =>
+            trapall().then(sig => {
                 this.serverless.cli.log(`Received ${sig} signal...`);
-            });
-        });
+            })
+        );
     }
 };

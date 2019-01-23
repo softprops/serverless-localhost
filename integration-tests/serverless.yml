@@ -19,13 +19,21 @@ functions:
       - http:
           path: /
           method: get
-  # note http func
-  js:
-    handler: node.handler
+  # node http func with path params
+  pathparams:
+    handler: pathparams.handler
     runtime: nodejs8.10
     events:
       - http:
           path: /foo/:bar
+          method: get
+  # node http func with path params
+  proxyplus:
+    handler: proxyplus.handler
+    runtime: nodejs8.10
+    events:
+      - http:
+          path: /bar/{proxy+}
           method: get
 
 plugins:
