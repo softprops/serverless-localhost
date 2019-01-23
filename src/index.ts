@@ -86,6 +86,25 @@ export = class Localhost {
         }
     }
 
+    httpFunctions(): HttpFunc[] {
+        const svc = this.serverless.service;
+        return svc.getAllFunctions().reduce<HttpFunc[]>(
+            (httpFuncs, name) => {
+                let func = svc.functions[name];
+                let runtime = func.runtime || svc.provider.runtime;
+                if (!runtime) {
+                    return httpFuncs;
+                }
+
+                if ((func.events || []).find((event: any) => event['http'] !== undefined)) {
+                    httpFuncs.push(this.httpFunc(name, runtime, func));
+                }
+
+                return httpFuncs;
+            }, []
+        );
+    }
+
     async start() {
         const svc = this.serverless.service;
         const providerName = svc.provider.name;
@@ -101,29 +120,16 @@ export = class Localhost {
         //await this.serverless.pluginManager.spawn("package");
 
 
-        const funcs = svc.getAllFunctions().reduce<HttpFunc[]>(
-            (httpFuncs, name) => {
-                let func = svc.functions[name];
-                let runtime = func.runtime || svc.provider.runtime;
-                if (!runtime) {
-                    return httpFuncs;
-                }
-
-                if ((func.events || []).find((event: any) => event['http'] !== undefined)) {
-                    httpFuncs.push(this.httpFunc(name, runtime, func));
-                }
-
-                return httpFuncs;
-            }, []
-        );
+        const funcs = this.httpFunctions();
         if (!funcs) {
             throw Error(`This serverless service has no http functions`);
         }
-        const app = express();
+
         const docker = new Dockerode({
             socketPath: '/var/run/docker.sock'
         });
-        // is docker daemon available? if not, what then?
+
+        // make sure we can communicate with docker
         await docker.ping().catch(
             (e) => {
                 throw new Error(
@@ -133,6 +139,8 @@ export = class Localhost {
                 );
             }
         );
+
+        const app = express();
         for (let func of funcs) {
             for (let event of func.events) {
                 console.log(event);
