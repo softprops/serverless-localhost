@@ -16,9 +16,7 @@ functions:
   world:
     handler: world.handler
     events:
-      - http:
-          path: /
-          method: get
+      - http: ANY /
   # node http func with path params
   pathparams:
     handler: pathparams.handler
@@ -26,7 +24,7 @@ functions:
     events:
       - http:
           path: /foo/:bar
-          method: get
+          method: POST
   # node http func with path params
   proxyplus:
     handler: proxyplus.handler

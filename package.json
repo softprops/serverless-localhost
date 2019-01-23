@@ -19,10 +19,11 @@
     ],
     "scripts": {
         "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
+        "coverage": "nyc report --reporter=text-lcov | coveralls",
+        "lint": "tslint -c tslint.json 'src/**/*.ts'",
         "pretest": "npm run lint",
-        "test": "nyc --reporter=lcov mocha --require ts-node/register --require source-map-support/register --recursive tests/*.ts",
-        "lint": "tslint -c tslint.json 'src/**/*.ts'"
+        "test": "nyc mocha --require ts-node/register --require source-map-support/register --recursive tests/*.ts",
+        "watch": "tsc -watch -p ./"
     },
     "nyc": {
         "include": [
@@ -60,6 +61,7 @@
         "@types/node": "^10.12.18",
         "chai": "^4.2.0",
         "chai-as-promised": "^7.1.1",
+        "coveralls": "^3.0.2",
         "mocha": "^5.2.0",
         "nyc": "^13.1.0",
         "source-map-support": "^0.5.10",
