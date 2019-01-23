@@ -10,7 +10,6 @@ branches:
   - master
 
 after_success: |
-  # see https://github.com/xd009642/tarpaulin/issues/150 for tarpaulin nightly dependency
   if [ $TRAVIS_BRANCH = master ] && [ $TRAVIS_PULL_REQUEST = false ]; then
-    npm coverage
+    npm run coverage
   fi
