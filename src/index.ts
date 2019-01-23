@@ -145,24 +145,39 @@ export = class Localhost {
                     // set up container
                     const dockerImage = runtimeImage(func.runtime);
 
-                    // todo: pull only in cases where a container create fails
-                    this.serverless.cli.log(`Pulling ${dockerImage} image...`);
-                    await pull(docker, dockerImage);
 
-                    this.serverless.cli.log(`Creating container...`);
-                    let event = JSON.stringify(
+                    const event = JSON.stringify(
                         apigwEvent(
                             request,
                             this.serverless.getProvider(svc.provider.name).getStage()
                         )
                     );
-                    let container = await docker.createContainer(
-                        containerArgs(
-                            dockerImage,
-                            event,
-                            func.handler
-                        )
-                    );
+                    const create = () => {
+                        this.serverless.cli.log(`Creating container...`);
+                        return docker.createContainer(
+                            containerArgs(
+                                dockerImage,
+                                event,
+                                func.handler
+                            )
+                        );
+                    };
+
+                    // todo: pull only in cases where a container create fails
+                    //  this.serverless.cli.log(`Pulling ${dockerImage} image...`);
+                    //  await pull(docker, dockerImage);
+
+                    let container = await create().catch((e) => {
+                        if (e.statusCode === 404) {
+                            this.serverless.cli.log(`Docker image not present`);
+                            this.serverless.cli.log(`Pulling ${dockerImage} image...`);
+                            return pull(docker, dockerImage).then(() => {
+                                return create();
+                            });
+                        }
+                        throw e;
+                    });
+
 
                     // start container
                     this.serverless.cli.log(`Starting container...`);
