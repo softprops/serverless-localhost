@@ -6,7 +6,7 @@
     },
     "license": "MIT",
     "displayName": "serverless-localhost",
-    "description": "Runs a local http server used to trigger you http functions in any runtime",
+    "description": "Runs a local http server used to trigger your http functions in any lambda runtime",
     "version": "0.1.1",
     "categories": [
         "Other"
