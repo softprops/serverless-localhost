@@ -7,6 +7,7 @@ export function errorLike(payload: object): boolean {
 }
 
 export function apigwEvent(request: express.Request, stage: string) {
+    request.headers['X-Forwarded-Proto'] = request.protocol;
     return {
         httpMethod: request.method,
         path: request.path,
