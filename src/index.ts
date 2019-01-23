@@ -152,6 +152,7 @@ export = class Localhost {
                             this.serverless.getProvider(svc.provider.name).getStage()
                         )
                     );
+
                     const create = () => {
                         this.serverless.cli.log(`Creating container...`);
                         return docker.createContainer(
@@ -162,10 +163,6 @@ export = class Localhost {
                             )
                         );
                     };
-
-                    // todo: pull only in cases where a container create fails
-                    //  this.serverless.cli.log(`Pulling ${dockerImage} image...`);
-                    //  await pull(docker, dockerImage);
 
                     let container = await create().catch((e) => {
                         if (e.statusCode === 404) {
@@ -178,14 +175,8 @@ export = class Localhost {
                         throw e;
                     });
 
-
-                    // start container
-                    this.serverless.cli.log(`Starting container...`);
-                    let containerStatus = await container.start();
-                    this.serverless.cli.consoleLog(`Started container ${containerStatus.id}`);
-
-                    // wait for container to finish its work
-                    await container.wait();
+                    // invoke function
+                    await container.start().then(() => container.wait());
 
                     // get the logs
                     this.serverless.cli.log(`Fetching container ${container.id}'s logs...`);
