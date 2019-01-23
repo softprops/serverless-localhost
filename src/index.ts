@@ -4,6 +4,7 @@ import * as Dockerode from 'dockerode';
 import { demux, runtimeImage, pull, containerArgs } from './docker';
 import { apigwEvent } from './lambda';
 import { translatePath, translateMethod } from "./http";
+import * as debug from 'debug';
 
 interface HttpFunc {
     name: string;
@@ -28,8 +29,10 @@ export = class Localhost {
     readonly options: ServerlessOptions;
     readonly commands: { [key: string]: CommandDescription };
     readonly hooks: { [key: string]: any };
+    readonly debug: debug.IDebugger;
 
     constructor(serverless: ServerlessInstance, options: ServerlessOptions) {
+        this.debug = debug("localhost");
         this.serverless = serverless;
         this.options = options;
         this.commands = {
@@ -79,10 +82,18 @@ export = class Localhost {
     respond(funcResponse: string, response: express.Response) {
         // expect apigateway contract to be hold here
         // todo: deal with error
-        if (funcResponse && funcResponse.length > 0) {
-            const json = JSON.parse(funcResponse);
-            response.status(json.statusCode).send(json.body);
+
+        // stdout stream may contain other data, response should be the last line
+        const lastLine = funcResponse.lastIndexOf('\n');
+        if (lastLine >= 0) {
+            console.log(funcResponse.substring(lastLine).trim());
+            funcResponse = funcResponse.substring(0, lastLine).trim();
         }
+        this.debug(`function response ${funcResponse}`);
+        const json = JSON.parse(funcResponse);
+        const status = json.statusCode || 200;
+        const contentType = (json.headers || {})["Content-Type"] || "application/json";
+        response.status(status).type(contentType).send(json.body);
     }
 
     httpFunctions(): HttpFunc[] {
@@ -129,6 +140,7 @@ export = class Localhost {
         });
 
         // make sure we can communicate with docker
+        this.debug(`pinging docker daemon`);
         await docker.ping().catch(
             (e) => {
                 throw new Error(
@@ -142,12 +154,9 @@ export = class Localhost {
         const app = express();
         for (let func of funcs) {
             for (let event of func.events) {
-                console.log(event);
-                let httpMethod = event.method.toLowerCase();
-                await app[httpMethod === "any" ? "all" : httpMethod](event.path, async (request: express.Request, response: express.Response) => {
+                await app[event.method](event.path, async (request: express.Request, response: express.Response) => {
                     // set up container
                     const dockerImage = runtimeImage(func.runtime);
-
 
                     const event = JSON.stringify(
                         apigwEvent(
@@ -157,7 +166,7 @@ export = class Localhost {
                     );
 
                     const create = () => {
-                        this.serverless.cli.log(`Creating container...`);
+                        this.debug("Creating docker container for ${func.handler}");
                         return docker.createContainer(
                             containerArgs(
                                 dockerImage,
@@ -167,7 +176,7 @@ export = class Localhost {
                         );
                     };
 
-                    let container = await create().catch((e) => {
+                    let container = await create().catch((e: any) => {
                         if (e.statusCode === 404) {
                             this.serverless.cli.log(`Docker image not present`);
                             this.serverless.cli.log(`Pulling ${dockerImage} image...`);
@@ -179,26 +188,29 @@ export = class Localhost {
                     });
 
                     // invoke function
+                    this.debug(`Invoking ${func.handler} function in ${container.id}`);
                     await container.start().then(() => container.wait());
 
                     // get the logs
-                    this.serverless.cli.log(`Fetching container ${container.id}'s logs...`);
+                    this.debug(`Fetching container logs of ${container.id}`);
                     let logs = await container.logs({
                         stdout: true,
                         stderr: true
                     });
-                    //var stdout: String[] = [];
+                    var stdout: Uint8Array[] = [];
                     demux((logs as unknown) as Buffer,
                         (data: any) => { // stderr
                             process.stderr.write(data);
                         },
                         (data: any) => { // stdout
-                            const str = data.toString("utf8").trim();
-                            this.respond(str, response);
+                            stdout.push(data);
                         }
                     );
 
+                    this.respond(Buffer.concat(stdout).toString("utf8"), response);
+
                     // sweep up
+                    this.debug(`Deleting container ${container.id}`);
                     await container.remove();
                 });
             }
@@ -222,7 +234,7 @@ export = class Localhost {
             );
         }).then(
             () => trapAll().then(
-                sig => this.serverless.cli.log(`Received ${sig} signal...`)
+                sig => this.serverless.cli.log(`Received ${sig} signal. Stopping server...`)
             )
         );
     }

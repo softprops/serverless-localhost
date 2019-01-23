@@ -12,7 +12,6 @@ export function demux(logs: Buffer, stderr: (d: any) => void, stdout: (d: any) =
         var type = header.readUInt8(0);
         var payload = bufferStream.read(header.readUInt32BE(4));
         if (payload === null) {
-            console.log("done reading logs");
             break;
         }
         if (type === 2) {

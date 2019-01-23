@@ -1,5 +1,9 @@
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 def handler(event, ctx):
-  print("I'm in your logs")
+  logger.info("Logging...")
   return {
     "statusCode": 200,
     "body": "hello python"
