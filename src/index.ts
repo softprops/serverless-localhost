@@ -3,16 +3,13 @@ import * as express from 'express';
 import * as Dockerode from 'dockerode';
 import { demux, runtimeImage, pull, containerArgs } from './docker';
 import { apigwEvent } from './lambda';
+import { translatePath } from "./path";
 
 interface HttpFunc {
     name: string;
     handler: string;
     runtime: string;
     events: { method: string, path: string }[];
-}
-
-function translatePath(apiGatewayPath: string): string {
-    return apiGatewayPath;
 }
 
 function trap(sig: NodeJS.Signals): Promise<NodeJS.Signals> {
