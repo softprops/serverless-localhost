@@ -62,11 +62,10 @@ export = class Localhost {
             events: (func.events || []).filter(event => event['http'] !== undefined).map(event => {
                 let http = event['http'];
                 if (typeof http === 'string') {
-                    const split = http.split(' ');
-                    console.log(split);
+                    const [method, path] = http.split(' ');
                     return {
-                        method: translateMethod(split[0]),
-                        path: translatePath(split[1])
+                        method: translateMethod(method),
+                        path: translatePath(path)
                     };
                 }
                 return {
@@ -188,11 +187,12 @@ export = class Localhost {
                         stdout: true,
                         stderr: true
                     });
+                    //var stdout: String[] = [];
                     demux((logs as unknown) as Buffer,
-                        (data: any) => {
+                        (data: any) => { // stderr
                             process.stderr.write(data);
                         },
-                        (data: any) => {
+                        (data: any) => { // stdout
                             const str = data.toString("utf8").trim();
                             this.respond(str, response);
                         }
