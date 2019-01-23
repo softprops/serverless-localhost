@@ -13,7 +13,7 @@ export function apigwEvent(request: express.Request, stage: string) {
         path: request.path,
         body: request.body,
         headers: request.headers, // replying to the JSONize impl for effect
-        queryStringParameters: null,
+        queryStringParameters: request.query,
         pathParameters: request.params,
         stageVariables: null,
         isBase64Encoded: false,
