@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as Dockerode from 'dockerode';
 import { demux, runtimeImage, pull, containerArgs } from './docker';
 import { apigwEvent } from './lambda';
-import { translatePath } from "./path";
+import { translatePath, translateMethod } from "./http";
 
 interface HttpFunc {
     name: string;
@@ -18,7 +18,7 @@ function trap(sig: NodeJS.Signals): Promise<NodeJS.Signals> {
     });
 }
 
-function trapall(): Promise<NodeJS.Signals> {
+function trapAll(): Promise<NodeJS.Signals> {
     return Promise.race([trap('SIGINT'), trap("SIGTERM")]);
 }
 
@@ -63,13 +63,14 @@ export = class Localhost {
                 let http = event['http'];
                 if (typeof http === 'string') {
                     const split = http.split(' ');
+                    console.log(split);
                     return {
-                        method: split[0],
+                        method: translateMethod(split[0]),
                         path: translatePath(split[1])
                     };
                 }
                 return {
-                    method: http.method,
+                    method: translateMethod(http.method),
                     path: translatePath(http.path)
                 };
             })
@@ -119,7 +120,6 @@ export = class Localhost {
             throw Error(`This serverless service has no http functions`);
         }
         const app = express();
-        const port = 3000;
         const docker = new Dockerode({
             socketPath: '/var/run/docker.sock'
         });
@@ -135,10 +135,9 @@ export = class Localhost {
         );
         for (let func of funcs) {
             for (let event of func.events) {
-                this.serverless.cli.log(
-                    `Mounting ${func.name} (${func.runtime} handler ${func.handler}) to ${event.method} ${event.path}`
-                );
-                await app[event.method](event.path, async (request: express.Request, response: express.Response) => {
+                console.log(event);
+                let httpMethod = event.method.toLowerCase();
+                await app[httpMethod === "any" ? "all" : httpMethod](event.path, async (request: express.Request, response: express.Response) => {
                     // set up container
                     const dockerImage = runtimeImage(func.runtime);
 
@@ -199,16 +198,24 @@ export = class Localhost {
 
         return new Promise((resolve) => {
             this.serverless.cli.log("Starting server...");
+            const port = this.options.port || 3000;
             return app.listen(
-                this.options.port || 3000, () => {
+                port, () => {
                     this.serverless.cli.log(`Listening on port ${port}...`);
+                    this.serverless.cli.log("Routes");
+                    for (let func of funcs) {
+                        this.serverless.cli.log(`* ${func.name}`);
+                        for (let event of func.events) {
+                            this.serverless.cli.log(`    ${event.method} http://localhost:${port}${event.path}`);
+                        }
+                    }
                     resolve();
                 }
             );
-        }).then(() =>
-            trapall().then(sig => {
-                this.serverless.cli.log(`Received ${sig} signal...`);
-            })
+        }).then(
+            () => trapAll().then(
+                sig => this.serverless.cli.log(`Received ${sig} signal...`)
+            )
         );
     }
 };

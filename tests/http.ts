@@ -1,6 +1,6 @@
 import * as chai from "chai";
 import * as chaiAsPromised from "chai-as-promised";
-import { translatePath } from "../src/path";
+import { translatePath, translateMethod } from "../src/http";
 
 before(() => {
     chai.should();
@@ -8,7 +8,15 @@ before(() => {
 });
 
 // https://www.chaijs.com/api/bdd/
-describe('path', () => {
+describe('http', () => {
+    describe("#translateMethod", () => {
+        it("translates GET to get (upper to lowercase)", () => {
+            chai.expect(translateMethod("GET")).to.eq("get");
+        });
+        it("translates ANY to all (wildcard)", () => {
+            chai.expect(translateMethod("ANY")).to.eq("all");
+        });
+    });
     describe('#translatePath', () => {
         it("translates / to /", () => {
             chai.expect(translatePath("/")).to.eq("/");
