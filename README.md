@@ -8,7 +8,7 @@ Goals
 
 * 👩‍💻 Shorten AWS Lambda development feedback loops
 * ⚡ Integrate with your existing serverless application
-* ⛱️ Work with _all_ AWS Lambda runtimes
+* ⛱️ Work with **all** AWS Lambda runtimes, out of the box
 * 🐑 Leverage [lambci project](https://github.com/lambci/) for undifferentiated heaving lifting
 
 ## 📦 Install
@@ -45,6 +45,15 @@ Run the following in your terminal
 
 ```sh
 $ npx serverless localhost
+```
+
+## 📝 Debugging
+
+If you find your having a problem, you can run this plugin's command
+with the `DEBUG` environment variable set to "localhost"
+
+```sh
+$ DEBUG=localhost npx serverless localhost
 ```
 
 🚧 Planned work
