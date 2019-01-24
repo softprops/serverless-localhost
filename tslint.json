@@ -17,7 +17,8 @@
 			true,
 			"always"
 		],
-		"triple-equals": true
+		"triple-equals": true,
+		"ordered-imports": true
 	},
 	"defaultSeverity": "error"
 }
