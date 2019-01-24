@@ -221,8 +221,7 @@ export = class Localhost {
             this.serverless.cli.log('Starting server...');
             const port = this.options.port || DEFAULT_PORT;
             app.listen(
-                port, (a, e) => {
-                    console.log(`started with ${a}`);
+                port, () => {
                     this.serverless.cli.log(`Listening on port ${port}...`);
                     this.serverless.cli.log('Function routes');
                     for (let func of funcs) {
