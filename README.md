@@ -1,6 +1,6 @@
 # serverless localhost [![Build Status](https://travis-ci.org/softprops/serverless-localhost.svg?branch=master)](https://travis-ci.org/softprops/serverless-localhost)
 
-> npx serverless localhost start
+> npx serverless localhost
 
 ## Overview
 
@@ -9,7 +9,49 @@ Goals
 * 👩‍💻 Shorten AWS Lambda development feedback loops
 * ⚡ Integrate with your existing serverless application
 * ⛱️ Work with _all_ AWS Lambda runtimes
-* 🐑 Leverage existing work of [lambci project](https://github.com/lambci/)
+* 🐑 Leverage [lambci project](https://github.com/lambci/) for undifferentiated heaving lifting
+
+## 📦 Install
+
+Inside a serverless project directory run the following
+
+```sh
+$ npm install -D softprops/serverless-local
+```
+
+Add the following do your `serverless.yml` file
+
+```yaml
+service: demo
+provider:
+  name: aws
+  runtime: xxx
+plugins:
+  # this adds informs servleress to use
+  # the serverless-rust plugin
+  - serverless-localhost
+functions:
+  test:
+    handler: foo.bar
+    events:
+      - http:
+          path: /
+          method: GET
+```
+
+## 🤸 Usage
+
+Run the following in your terminal
+
+```sh
+$ npx serverless localhost
+```
+
+🚧 Planned work
+
+* add support for binary requests and responses
+* debug mod for runtimes
+
 
 
 Doug Tangren (softprops) 2019

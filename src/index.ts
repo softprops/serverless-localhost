@@ -23,6 +23,8 @@ function trapAll(): Promise<NodeJS.Signals> {
     return Promise.race([trap('SIGINT'), trap("SIGTERM")]);
 }
 
+const DEFAULT_PORT: number = 3000;
+
 export = class Localhost {
 
     readonly serverless: ServerlessInstance;
@@ -38,22 +40,17 @@ export = class Localhost {
         this.commands = {
             localhost: {
                 usage: "Runs a local http server simulating API Gateway, triggering your http functions on demand",
-                commands: {
-                    start: {
-                        usage: "Starts the server",
-                        lifecycleEvents: ["start"],
-                        options: {
-                            port: {
-                                usage: 'Port to listen on. Default: 3000',
-                                shortcut: 'P',
-                            },
-                        }
-                    }
+                lifecycleEvents: ['start'],
+                options: {
+                    port: {
+                        usage: `Port to listen on. Default: ${DEFAULT_PORT}`,
+                        shortcut: 'P',
+                    },
                 }
             }
         };
         this.hooks = {
-            'localhost:start:start': this.start.bind(this)
+            'localhost:start': this.start.bind(this)
         };
     }
 
@@ -223,7 +220,7 @@ export = class Localhost {
 
         return new Promise((resolve) => {
             this.serverless.cli.log("Starting server...");
-            const port = this.options.port || 3000;
+            const port = this.options.port || DEFAULT_PORT;
             return app.listen(
                 port, () => {
                     this.serverless.cli.log(`Listening on port ${port}...`);
