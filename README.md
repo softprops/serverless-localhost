@@ -19,7 +19,7 @@ installed you can learn how to [here](https://www.docker.com/products/docker-des
 Inside a serverless project directory run the following
 
 ```sh
-$ npm install -D softprops/serverless-local
+$ npm i -D softprops/serverless-localhost
 ```
 
 Add the `serverless-localhost` to your `serverless.yml` file's

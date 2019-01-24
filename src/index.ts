@@ -158,7 +158,7 @@ export = class Localhost {
     this.debug('pinging docker daemon');
     await docker.ping().catch(e => {
       throw new Error(
-        'Unable to communicate to docker. \n' +
+        'Unable to communicate with docker. \n' +
           `   Error: ${e.message}\n` +
           '  Follow https://docs.docker.com/get-started/ to make sure you have docker installed \n'
       );
