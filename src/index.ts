@@ -106,6 +106,7 @@ export = class Localhost {
                 let func = svc.functions[name];
                 let runtime = func.runtime || svc.provider.runtime;
                 if (!runtime) {
+                    this.serverless.cli.log(`Warning: unable to infer a runtime for function ${name}`);
                     return httpFuncs;
                 }
 
