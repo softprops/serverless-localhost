@@ -162,8 +162,7 @@ export = class Localhost {
       );
     });
 
-    const app = express();
-    app.disable('x-powered-by');
+    const app = express().disable('x-powered-by');
     for (let func of funcs) {
       for (let event of func.events) {
         await app[event.method](
