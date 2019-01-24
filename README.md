@@ -68,6 +68,8 @@ with the `DEBUG` environment variable set to "localhost"
 $ DEBUG=localhost npx serverless localhost
 ```
 
+---
+
 🚧 Planned work
 
 * add support for binary requests and responses
