@@ -13,6 +13,9 @@ Goals
 
 ## 📦 Install
 
+> 💡 This plugin relies on Docker to emulate AWS Lambda runtimes. If you don't have that
+installed you can learn how to [here](https://www.docker.com/products/docker-desktop)
+
 Inside a serverless project directory run the following
 
 ```sh
@@ -46,9 +49,9 @@ Run the following in your terminal
 $ npx serverless localhost
 ```
 
-## 📝 Debugging
+## 🔬 Debugging
 
-If you find your having a problem, you can run this plugin's command
+If you find your having a problem with this plugin, you can run this plugin's command
 with the `DEBUG` environment variable set to "localhost"
 
 ```sh
