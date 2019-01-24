@@ -11,16 +11,7 @@ import {
 import { containerArgs, demux, pull, runtimeImage } from './docker';
 import { translateMethod, translatePath } from './http';
 import { apigwEvent, errorLike } from './lambda';
-
-function trap(sig: NodeJS.Signals): Promise<NodeJS.Signals> {
-  return new Promise(resolve => {
-    process.on(sig, () => resolve(sig));
-  });
-}
-
-function trapAll(): Promise<NodeJS.Signals> {
-  return Promise.race([trap('SIGINT'), trap('SIGTERM')]);
-}
+import { trapAll } from './signal';
 
 const DEFAULT_PORT: number = 3000;
 
