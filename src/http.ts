@@ -3,7 +3,7 @@
 
 export function translateMethod(method: string): string {
     const lowercased = method.toLowerCase();
-    return "any" === lowercased ? "all" : lowercased;
+    return 'any' === lowercased ? 'all' : lowercased;
 }
 
 export function translatePath(apiGatewayPath: string): string {

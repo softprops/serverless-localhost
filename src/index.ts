@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as Dockerode from 'dockerode';
 import { demux, runtimeImage, pull, containerArgs } from './docker';
 import { apigwEvent, errorLike } from './lambda';
-import { translatePath, translateMethod } from "./http";
+import { translatePath, translateMethod } from './http';
 import * as debug from 'debug';
 
 interface HttpFunc {
@@ -20,7 +20,7 @@ function trap(sig: NodeJS.Signals): Promise<NodeJS.Signals> {
 }
 
 function trapAll(): Promise<NodeJS.Signals> {
-    return Promise.race([trap('SIGINT'), trap("SIGTERM")]);
+    return Promise.race([trap('SIGINT'), trap('SIGTERM')]);
 }
 
 const DEFAULT_PORT: number = 3000;
@@ -34,12 +34,12 @@ export = class Localhost {
     readonly debug: debug.IDebugger;
 
     constructor(serverless: ServerlessInstance, options: ServerlessOptions) {
-        this.debug = debug("localhost");
+        this.debug = debug('localhost');
         this.serverless = serverless;
         this.options = options;
         this.commands = {
             localhost: {
-                usage: "Runs a local http server simulating API Gateway, triggering your http functions on demand",
+                usage: 'Runs a local http server simulating API Gateway, triggering your http functions on demand',
                 lifecycleEvents: ['start'],
                 options: {
                     port: {
@@ -87,11 +87,11 @@ export = class Localhost {
         }
         const json = JSON.parse(funcResponse);
         if (errorLike(json)) {
-            this.debug(`function invocation yieled unhandled error`);
-            response.status(500).type("application/json").send(json);
+            this.debug('function invocation yieled unhandled error');
+            response.status(500).type('application/json').send(json);
         } else {
             const status = json.statusCode || 200;
-            const contentType = (json.headers || {})["Content-Type"] || "application/json";
+            const contentType = (json.headers || {})['Content-Type'] || 'application/json';
             response.status(status).type(contentType).send(json.body);
         }
     }
@@ -119,7 +119,7 @@ export = class Localhost {
     async start() {
         const svc = this.serverless.service;
         const providerName = svc.provider.name;
-        if ("aws" !== providerName) {
+        if ('aws' !== providerName) {
             throw Error(`Provider ${providerName} is not supported`);
         }
 
@@ -130,10 +130,9 @@ export = class Localhost {
         //this.serverless.cli.log(`Packaging ${svc.service} functions for local deployment...`);
         //await this.serverless.pluginManager.spawn("package");
 
-
         const funcs = this.httpFunctions();
         if (!funcs) {
-            throw Error(`This serverless service has no http functions`);
+            throw Error('This serverless service has no http functions');
         }
 
         const docker = new Dockerode({
@@ -141,7 +140,7 @@ export = class Localhost {
         });
 
         // make sure we can communicate with docker
-        this.debug(`pinging docker daemon`);
+        this.debug('pinging docker daemon');
         await docker.ping().catch(
             (e) => {
                 throw new Error(
@@ -168,7 +167,7 @@ export = class Localhost {
                     );
 
                     const create = () => {
-                        this.debug("Creating docker container for ${func.handler}");
+                        this.debug('Creating docker container for ${func.handler}');
                         return docker.createContainer(
                             containerArgs(
                                 dockerImage,
@@ -180,7 +179,7 @@ export = class Localhost {
 
                     let container = await create().catch((e: any) => {
                         if (e.statusCode === 404) {
-                            this.serverless.cli.log(`Docker image not present`);
+                            this.serverless.cli.log('Docker image not present');
                             this.serverless.cli.log(`Pulling ${dockerImage} image...`);
                             return pull(docker, dockerImage).then(() => {
                                 return create();
@@ -199,7 +198,7 @@ export = class Localhost {
                         stdout: true,
                         stderr: true
                     });
-                    var stdout: Uint8Array[] = [];
+                    const stdout: Uint8Array[] = [];
                     demux((logs as unknown) as Buffer,
                         (data: any) => { // stderr
                             process.stderr.write(data);
@@ -209,7 +208,7 @@ export = class Localhost {
                         }
                     );
 
-                    this.respond(Buffer.concat(stdout).toString("utf8"), response);
+                    this.respond(Buffer.concat(stdout).toString('utf8'), response);
 
                     // sweep up
                     this.debug(`Deleting container ${container.id}`);
@@ -219,13 +218,13 @@ export = class Localhost {
         }
 
         return new Promise((resolve, reject) => {
-            this.serverless.cli.log("Starting server...");
+            this.serverless.cli.log('Starting server...');
             const port = this.options.port || DEFAULT_PORT;
             app.listen(
                 port, (a, e) => {
                     console.log(`started with ${a}`);
                     this.serverless.cli.log(`Listening on port ${port}...`);
-                    this.serverless.cli.log("Function routes");
+                    this.serverless.cli.log('Function routes');
                     for (let func of funcs) {
                         this.serverless.cli.log(`* ${func.name}`);
                         for (let event of func.events) {
@@ -239,7 +238,7 @@ export = class Localhost {
                     reject(
                         new Error(
                             `Error starting server on localhost port ${port}.\n` +
-                            `  * Hint: You likely already have something listening on this port`
+                            '  * Hint: You likely already have something listening on this port'
                         )
                     );
                     return;

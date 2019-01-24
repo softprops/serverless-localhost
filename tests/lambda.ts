@@ -1,5 +1,5 @@
-import * as chai from "chai";
-import { errorLike } from "../src/lambda";
+import * as chai from 'chai';
+import { errorLike } from '../src/lambda';
 
 before(() => {
     chai.should();
@@ -8,20 +8,20 @@ before(() => {
 // https://www.chaijs.com/api/bdd/
 describe('lambda', () => {
     // https://aws.amazon.com/blogs/compute/error-handling-patterns-in-amazon-api-gateway-and-aws-lambda/
-    describe("#errorLike", () => {
-        it("detects unhandled function errors", () => {
+    describe('#errorLike', () => {
+        it('detects unhandled function errors', () => {
             chai.expect(errorLike({
-                "errorMessage": "whoops",
-                "errorType": "errrr",
-                "stackTrace": []
+                'errorMessage': 'whoops',
+                'errorType': 'errrr',
+                'stackTrace': []
             })).to.eq(true);
         });
-        it("detects function errors", () => {
+        it('detects function errors', () => {
             chai.expect(errorLike({
-                "errorMessage": "I'm aware"
+                'errorMessage': "I'm aware"
             })).to.eq(true);
         });
-        it("does not mis-detect user data", () => {
+        it('does not mis-detect user data', () => {
             chai.expect(errorLike({
                 foo: true
             })).to.eq(false);

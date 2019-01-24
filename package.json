@@ -20,6 +20,7 @@
     "scripts": {
         "compile": "tsc -p ./",
         "coverage": "nyc report --reporter=text-lcov | coveralls",
+        "fmt": "tsfmt -r",
         "lint": "tslint -c tslint.json 'src/**/*.ts'",
         "pretest": "npm run lint",
         "test": "nyc --require ts-node/register --require source-map-support/register mocha  --recursive tests/*.ts",
@@ -51,7 +52,8 @@
         "debug": "^4.1.1",
         "dockerode": "^2.5.8",
         "express": "^4.16.4",
-        "serverless": "^1.36.1"
+        "serverless": "^1.36.1",
+        "typescript-formatter": "^7.2.2"
     },
     "devDependencies": {
         "@types/chai": "^4.1.7",

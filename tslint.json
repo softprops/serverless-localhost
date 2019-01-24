@@ -1,10 +1,18 @@
 {
 	"rules": {
+		"quotemark": [true, "single", "avoid-escape", "avoid-template"],
 		"no-string-throw": true,
 		"no-unused-expression": true,
+		"no-irregular-whitespace": true,
+		"arrow-return-shorthand": true,
+    "class-name": true,
 		"no-duplicate-variable": true,
 		"curly": true,
-		"class-name": true,
+		"no-consecutive-blank-lines": true,
+    "no-trailing-whitespace": true,
+		"no-var-keyword": true,
+		"one-line": [true, "check-open-brace", "check-catch", "check-else", "check-whitespace"],
+    "whitespace": true,
 		"semicolon": [
 			true,
 			"always"

@@ -1,5 +1,5 @@
-import * as chai from "chai";
-import * as chaiAsPromised from "chai-as-promised";
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 
 before(() => {
     chai.should();
@@ -8,7 +8,7 @@ before(() => {
 
 // https://www.chaijs.com/api/bdd/
 describe('Localhost', () => {
-    it("works", () => {
+    it('works', () => {
         chai.expect(1 + 1).to.eq(2);
     });
 });

@@ -5,12 +5,12 @@ export function demux(logs: Buffer, stderr: (d: any) => void, stdout: (d: any) =
     // https://github.com/apocas/docker-modem/blob/7ec7abeb6b0cf7192d29667b397d292fe9f6e3ca/lib/modem.js#L296
     // when we're not `following` the logs we get a buffer. dockerode doesn't provide a helpful
     // way do demux that hence the following...
-    var bufferStream = new stream.PassThrough();
+    let bufferStream = new stream.PassThrough();
     bufferStream.end(logs);
     let header = bufferStream.read(8);
     while (header !== null) {
-        var type = header.readUInt8(0);
-        var payload = bufferStream.read(header.readUInt32BE(4));
+        let type = header.readUInt8(0);
+        let payload = bufferStream.read(header.readUInt32BE(4));
         if (payload === null) {
             break;
         }
@@ -30,13 +30,12 @@ export function pull(docker: Dockerode, image: string): Promise<void> {
                 resolve();
             }, function(event) {
                 process.stdout.write(
-                    `\r${event.status} ${event.id || ""} ${event.progress || ""}`
+                    `\r${event.status} ${event.id || ''} ${event.progress || ''}`
                 );
             });
         });
     });
 }
-
 
 export function runtimeImage(runtime: string): string {
     // https://hub.docker.com/r/lambci/lambda/tags
