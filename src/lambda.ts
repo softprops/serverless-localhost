@@ -19,7 +19,7 @@ export function apigwEvent(request: express.Request, stage: string) {
         isBase64Encoded: false,
         requestContext: {
             path: "/",
-            accountId: "123",
+            accountId: `${Math.random().toString(10).slice(2)}`,
             resourceId: "123",
             stage: stage,
             requestId: "123",
