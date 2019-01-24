@@ -49,6 +49,7 @@ Run the following in your terminal
 $ npx serverless localhost
 ```
 
+### 🌏 Environment variables
 Environment variables defined in your `serverless.yml` will be made available inside
 the localhost server. If your `serverless.yml` is configured to source their
 values from the deployment env, i.e. `${env.FOO,''}` just export their values
