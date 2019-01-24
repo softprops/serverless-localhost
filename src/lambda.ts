@@ -12,7 +12,7 @@ export function apigwEvent(request: express.Request, stage: string) {
     httpMethod: request.method,
     path: request.path,
     body: request.body,
-    headers: request.headers, // replying to the JSONize impl for effect
+    headers: request.headers, // relying to the JSONize impl for effect
     queryStringParameters: request.query,
     multiValueQueryStringParameters: Object.keys(request.query).reduce<{
       [key: string]: string[];
