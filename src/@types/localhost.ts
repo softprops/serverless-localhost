@@ -6,4 +6,5 @@ export interface HttpFunc {
     memorySize: number;
     timeout: number;
     events: { method: string, path: string }[];
+    environment: { [key: string]: string };
 }

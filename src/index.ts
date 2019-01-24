@@ -48,7 +48,7 @@ export = class Localhost {
         };
     }
 
-    httpFunc(name: string, runtime: string, func: FunctionConfig): HttpFunc {
+    httpFunc(name: string, runtime: string, env: { [key: string]: string }, func: FunctionConfig): HttpFunc {
         return {
             name,
             qualifiedName: func.name,
@@ -69,7 +69,8 @@ export = class Localhost {
                     method: translateMethod(http.method),
                     path: translatePath(http.path)
                 };
-            })
+            }),
+            environment: Object.assign(env, func.environment)
         };
     }
 
@@ -95,17 +96,19 @@ export = class Localhost {
 
     httpFunctions(): HttpFunc[] {
         const svc = this.serverless.service;
+        const env = Object.assign({}, svc.provider.environment);
         return svc.getAllFunctions().reduce<HttpFunc[]>(
             (httpFuncs, name) => {
                 let func = svc.functions[name];
                 let runtime = func.runtime || svc.provider.runtime;
+
                 if (!runtime) {
                     this.serverless.cli.log(`Warning: unable to infer a runtime for function ${name}`);
                     return httpFuncs;
                 }
 
                 if ((func.events || []).find((event: any) => event['http'] !== undefined)) {
-                    httpFuncs.push(this.httpFunc(name, runtime, func));
+                    httpFuncs.push(this.httpFunc(name, runtime, env, func));
                 }
 
                 return httpFuncs;

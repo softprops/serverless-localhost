@@ -4,24 +4,36 @@ provider:
   name: aws
   runtime: python3.7
   memorySize: 128
+  environment:
+    FOO: bar
 
 package:
   individually: true
-  excludeDevDependencies: false
 
 functions:
   # not an http func
   hello:
     handler: hello.handler
+    package:
+      include:
+        - hello.py
   # python http func
   world:
     handler: world.handler
+    environment:
+      BAR: boom
+    package:
+      include:
+        - world.py
     events:
       - http: ANY /
   # node http func with path params
   pathparams:
     handler: pathparams.handler
     runtime: nodejs8.10
+    package:
+      include:
+        - pathparams.js
     events:
       - http:
           path: /foo/:bar
@@ -30,6 +42,9 @@ functions:
   proxyplus:
     handler: proxyplus.handler
     runtime: nodejs8.10
+    package:
+      include:
+        - proxyplus.js
     events:
       - http:
           path: /bar/{proxy+}

@@ -54,6 +54,10 @@ export function containerArgs(
     event: string,
     func: HttpFunc
 ): object {
+    const baseEnv = Object.keys(func.environment).reduce<string[]>(
+        (res, key) => [...res, `${key}=${func.environment[key]}`],
+        []
+    );
     return {
         Image: dockerImage,
         Volumes: {
@@ -66,6 +70,7 @@ export function containerArgs(
         // todo: what ever else lambci expects
         // https://github.com/lambci/docker-lambda/blob/master/provided/run/init.go
         Env: [
+            ...baseEnv,
             `AWS_LAMBDA_FUNCTION_HANDLER=${func.handler}`,
             `AWS_LAMBDA_EVENT_BODY=${event}`,
             `AWS_LAMBDA_FUNCTION_NAME=${func.qualifiedName}`,
