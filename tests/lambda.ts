@@ -1,10 +1,8 @@
 import * as chai from "chai";
-import * as chaiAsPromised from "chai-as-promised";
 import { errorLike } from "../src/lambda";
 
 before(() => {
     chai.should();
-    chai.use(chaiAsPromised);
 });
 
 // https://www.chaijs.com/api/bdd/
