@@ -14,6 +14,9 @@ export function apigwEvent(request: express.Request, stage: string) {
     body: request.body,
     headers: request.headers, // replying to the JSONize impl for effect
     queryStringParameters: request.query,
+    multiValueQueryStringParameters: Object.keys(request.query).reduce<{
+      [key: string]: string[];
+    }>((res, key) => Object.assign(res, { key: [request.query[key]] }), {}),
     pathParameters: request.params,
     stageVariables: null,
     isBase64Encoded: false,
