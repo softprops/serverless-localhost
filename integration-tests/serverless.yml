@@ -1,4 +1,4 @@
-service: test-svc
+service: demo
 
 provider:
   name: aws

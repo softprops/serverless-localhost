@@ -42,7 +42,12 @@ export function runtimeImage(runtime: string): string {
     return `lambci/lambda:${runtime}`;
 }
 
-export function containerArgs(dockerImage: string, event: string, handler: string): object {
+export function containerArgs(
+    dockerImage: string,
+    event: string,
+    handler: string,
+    functionName: string
+): object {
     return {
         Image: dockerImage,
         Volumes: {
@@ -53,9 +58,11 @@ export function containerArgs(dockerImage: string, event: string, handler: strin
             Binds: [`${process.cwd()}:/var/task:ro`]
         },
         // todo: what ever else lambci expects
+        // https://github.com/lambci/docker-lambda/blob/master/provided/run/init.go
         Env: [
             `AWS_LAMBDA_FUNCTION_HANDLER=${handler}`,
-            `AWS_LAMBDA_EVENT_BODY=${event}`
+            `AWS_LAMBDA_EVENT_BODY=${event}`,
+            `AWS_LAMBDA_FUNCTION_NAME=${functionName}`
         ]
     };
 }

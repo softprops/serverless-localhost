@@ -33,6 +33,7 @@ export interface ServerlessInstance {
 }
 
 export interface FunctionConfig {
+    name: string;
     handler: string;
     runtime?: string;
     events?: { [key: string]: any }[];

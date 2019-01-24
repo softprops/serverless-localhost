@@ -8,6 +8,7 @@ import * as debug from 'debug';
 
 interface HttpFunc {
     name: string;
+    qualifiedName: string;
     handler: string;
     runtime: string;
     events: { method: string, path: string }[];
@@ -57,6 +58,7 @@ export = class Localhost {
     httpFunc(name: string, runtime: string, func: FunctionConfig): HttpFunc {
         return {
             name,
+            qualifiedName: func.name,
             handler: func.handler,
             runtime,
             events: (func.events || []).filter(event => event['http'] !== undefined).map(event => {
@@ -155,6 +157,7 @@ export = class Localhost {
         app.disable('x-powered-by');
         for (let func of funcs) {
             for (let event of func.events) {
+
                 await app[event.method](event.path, async (request: express.Request, response: express.Response) => {
                     // set up container
                     const dockerImage = runtimeImage(func.runtime);
@@ -172,7 +175,8 @@ export = class Localhost {
                             containerArgs(
                                 dockerImage,
                                 event,
-                                func.handler
+                                func.handler,
+                                func.qualifiedName,
                             )
                         );
                     };
