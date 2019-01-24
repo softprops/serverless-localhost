@@ -19,7 +19,8 @@ Inside a serverless project directory run the following
 $ npm install -D softprops/serverless-local
 ```
 
-Add the following do your `serverless.yml` file
+Add the `serverless-localhost` to your `serverless.yml` file's
+list of `plugins`
 
 ```yaml
 service: demo
@@ -27,8 +28,6 @@ provider:
   name: aws
   runtime: xxx
 plugins:
-  # this adds informs servleress to use
-  # the serverless-rust plugin
   - serverless-localhost
 functions:
   test:
