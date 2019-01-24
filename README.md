@@ -75,4 +75,9 @@ $ DEBUG=localhost npx serverless localhost
 * add support for binary requests and responses
 * debug mod for runtimes
 
+
+## 👯 Contributing
+
+Contributions are welcome. Please read [our contributing doc](CONTRIBUTING.md) for more information.
+
 Doug Tangren (softprops) 2019
