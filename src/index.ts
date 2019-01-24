@@ -218,13 +218,14 @@ export = class Localhost {
             }
         }
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             this.serverless.cli.log("Starting server...");
             const port = this.options.port || DEFAULT_PORT;
-            return app.listen(
-                port, () => {
+            app.listen(
+                port, (a, e) => {
+                    console.log(`started with ${a}`);
                     this.serverless.cli.log(`Listening on port ${port}...`);
-                    this.serverless.cli.log("Routes");
+                    this.serverless.cli.log("Function routes");
                     for (let func of funcs) {
                         this.serverless.cli.log(`* ${func.name}`);
                         for (let event of func.events) {
@@ -233,7 +234,18 @@ export = class Localhost {
                     }
                     resolve();
                 }
-            );
+            ).on('error', (e) => {
+                if (e.message.indexOf('listen EADDRINUSE') > -1) {
+                    reject(
+                        new Error(
+                            `Error starting server on localhost port ${port}.\n` +
+                            `  * Hint: You likely already have something listening on this port`
+                        )
+                    );
+                    return;
+                }
+                reject(new Error(`Unexpected error while starting server ${e.message}`));
+            });
         }).then(
             () => trapAll().then(
                 sig => this.serverless.cli.log(`Received ${sig} signal. Stopping server...`)
