@@ -101,7 +101,9 @@ export = class Localhost {
       response
         .status(status)
         .type(contentType)
-        .send(json.body);
+        .send(
+          json.isBase64Encoded ? Buffer.from(json.body, 'base64') : json.body
+        );
     }
   }
 
