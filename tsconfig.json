@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "noImplicitAny": false, // hack! plz fix
         "newLine": "LF",
         "module": "commonjs",
         "declaration": true,

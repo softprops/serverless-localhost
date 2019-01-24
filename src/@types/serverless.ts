@@ -21,6 +21,8 @@ export interface ServerlessInstance {
         provider: {
             name: string;
             runtime?: string;
+            memorySize?: number,
+            timeout?: number
         };
         package?: Package;
         getAllFunctions: () => string[];
@@ -38,6 +40,8 @@ export interface FunctionConfig {
     runtime?: string;
     events?: { [key: string]: any }[];
     package?: Package;
+    memorySize?: number;
+    timeout?: number;
 }
 
 export interface Package {

@@ -1,5 +1,6 @@
 import * as stream from 'stream';
 import * as Dockerode from 'dockerode';
+import { HttpFunc } from './@types/localhost';
 
 export function demux(logs: Buffer, stderr: (d: any) => void, stdout: (d: any) => void): void {
     // https://github.com/apocas/docker-modem/blob/7ec7abeb6b0cf7192d29667b397d292fe9f6e3ca/lib/modem.js#L296
@@ -26,18 +27,21 @@ export function demux(logs: Buffer, stderr: (d: any) => void, stdout: (d: any) =
 export function pull(docker: Dockerode, image: string): Promise<void> {
     return new Promise((resolve) => {
         docker.pull(image, {}, (err, stream) => {
-            docker.modem.followProgress(stream, (err, out) => {
+            docker.modem.followProgress(stream, () => {
                 resolve();
-            }, function(event) {
+            }, function(event: any) {
+                process.stdout.write('\r');
                 process.stdout.write(
-                    `\r${event.status} ${event.id || ''} ${event.progress || ''}`
+                    `${event.status} ${event.id || ''} ${event.progress || ''}`
                 );
             });
         });
     });
 }
 
-export function runtimeImage(runtime: string): string {
+export function runtimeImage(
+    runtime: string
+): string {
     // https://hub.docker.com/r/lambci/lambda/tags
     return `lambci/lambda:${runtime}`;
 }
@@ -45,8 +49,7 @@ export function runtimeImage(runtime: string): string {
 export function containerArgs(
     dockerImage: string,
     event: string,
-    handler: string,
-    functionName: string
+    func: HttpFunc
 ): object {
     return {
         Image: dockerImage,
@@ -60,9 +63,13 @@ export function containerArgs(
         // todo: what ever else lambci expects
         // https://github.com/lambci/docker-lambda/blob/master/provided/run/init.go
         Env: [
-            `AWS_LAMBDA_FUNCTION_HANDLER=${handler}`,
+            `AWS_LAMBDA_FUNCTION_HANDLER=${func.handler}`,
             `AWS_LAMBDA_EVENT_BODY=${event}`,
-            `AWS_LAMBDA_FUNCTION_NAME=${functionName}`
+            `AWS_LAMBDA_FUNCTION_NAME=${func.qualifiedName}`,
+            `AWS_LAMBDA_FUNCTION_MEMORY_SIZE=${func.memorySize}`,
+            `AWS_LAMBDA_FUNCTION_TIMEOUT=${func.timeout}`
+            // `AWS_LAMBDA_CLIENT_CONTEXT=??`,
+            // `AWS_LAMBDA_COGNITO_IDENTITY=??`
         ]
     };
 }

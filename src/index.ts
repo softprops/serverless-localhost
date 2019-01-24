@@ -1,18 +1,11 @@
 import { CommandDescription, ServerlessInstance, ServerlessOptions, FunctionConfig } from './@types/serverless';
+import { HttpFunc } from './@types/localhost';
 import * as express from 'express';
 import * as Dockerode from 'dockerode';
 import { demux, runtimeImage, pull, containerArgs } from './docker';
 import { apigwEvent, errorLike } from './lambda';
 import { translatePath, translateMethod } from './http';
 import * as debug from 'debug';
-
-interface HttpFunc {
-    name: string;
-    qualifiedName: string;
-    handler: string;
-    runtime: string;
-    events: { method: string, path: string }[];
-}
 
 function trap(sig: NodeJS.Signals): Promise<NodeJS.Signals> {
     return new Promise(resolve => {
@@ -61,6 +54,8 @@ export = class Localhost {
             qualifiedName: func.name,
             handler: func.handler,
             runtime,
+            memorySize: func.memorySize || this.serverless.service.provider.memorySize || 1536,
+            timeout: func.timeout || this.serverless.service.provider.timeout || 300,
             events: (func.events || []).filter(event => event['http'] !== undefined).map(event => {
                 let http = event['http'];
                 if (typeof http === 'string') {
@@ -175,8 +170,7 @@ export = class Localhost {
                             containerArgs(
                                 dockerImage,
                                 event,
-                                func.handler,
-                                func.qualifiedName,
+                                func
                             )
                         );
                     };
