@@ -49,6 +49,15 @@ Run the following in your terminal
 $ npx serverless localhost
 ```
 
+Environment variables defined in your `serverless.yml` will be made available inside
+the localhost server. If your `serverless.yml` is configured to source their
+values from the deployment env, i.e. `${env.FOO,''}` just export their values
+before starting the server.
+
+```sh
+$ FOO=bar npx serverless localhost
+```
+
 ## 🔬 Debugging
 
 If you find your having a problem with this plugin, you can run this plugin's command
