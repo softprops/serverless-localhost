@@ -1,6 +1,7 @@
 import * as stream from 'stream';
 import * as Dockerode from 'dockerode';
 import { HttpFunc } from './@types/localhost';
+import * as readline from 'readline';
 
 export function demux(logs: Buffer, stderr: (d: any) => void, stdout: (d: any) => void): void {
     // https://github.com/apocas/docker-modem/blob/7ec7abeb6b0cf7192d29667b397d292fe9f6e3ca/lib/modem.js#L296
@@ -28,9 +29,11 @@ export function pull(docker: Dockerode, image: string): Promise<void> {
     return new Promise((resolve) => {
         docker.pull(image, {}, (err, stream) => {
             docker.modem.followProgress(stream, () => {
+                process.stdout.write('\n');
                 resolve();
             }, function(event: any) {
-                process.stdout.write('\r');
+                readline.clearLine(process.stdout, 0);
+                readline.cursorTo(process.stdout, 0);
                 process.stdout.write(
                     `${event.status} ${event.id || ''} ${event.progress || ''}`
                 );

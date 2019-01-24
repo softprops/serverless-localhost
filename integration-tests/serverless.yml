@@ -3,6 +3,7 @@ service: demo
 provider:
   name: aws
   runtime: python3.7
+  memorySize: 128
 
 package:
   individually: true
