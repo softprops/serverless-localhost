@@ -7,5 +7,4 @@ npm link ../.
 # get help
 npx serverless localhost --help
 
-# assumes PD_API_KEY env var
-npx serverless localhost start
+npx serverless localhost
