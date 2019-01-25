@@ -2,7 +2,7 @@
 
 > npx serverless localhost
 
-<img src="assets/screenshot.png"/>
+<img width="647" src="assets/screenshot.png"/>
 
 ## Overview
 
