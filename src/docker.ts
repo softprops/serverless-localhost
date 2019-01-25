@@ -58,7 +58,8 @@ export function runtimeImage(runtime: string): string {
 export function containerArgs(
   dockerImage: string,
   event: string,
-  func: HttpFunc
+  func: HttpFunc,
+  region: string
 ): object {
   const baseEnv = Object.keys(func.environment).reduce<string[]>(
     (res, key) => [...res, `${key}=${func.environment[key]}`],
@@ -81,7 +82,9 @@ export function containerArgs(
       `AWS_LAMBDA_EVENT_BODY=${event}`,
       `AWS_LAMBDA_FUNCTION_NAME=${func.qualifiedName}`,
       `AWS_LAMBDA_FUNCTION_MEMORY_SIZE=${func.memorySize}`,
-      `AWS_LAMBDA_FUNCTION_TIMEOUT=${func.timeout}`
+      `AWS_LAMBDA_FUNCTION_TIMEOUT=${func.timeout}`,
+      `AWS_REGION=${region}`,
+      `AWS_DEFAULT_REGION=${region}`
       // `AWS_LAMBDA_CLIENT_CONTEXT=??`,
       // `AWS_LAMBDA_COGNITO_IDENTITY=??`
     ]

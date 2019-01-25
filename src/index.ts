@@ -173,18 +173,19 @@ export = class Localhost {
             // set up container
             const dockerImage = runtimeImage(func.runtime);
 
-            const event = JSON.stringify(
-              apigwEvent(
-                request,
-                this.serverless.getProvider(svc.provider.name).getStage()
-              )
+            const provider = this.serverless
+              .getProvider(svc.provider.name)
+              .getStage();
+            const event = JSON.stringify(apigwEvent(request, provider));
+            const invokeArgs = containerArgs(
+              dockerImage,
+              event,
+              func,
+              this.serverless.getProvider(svc.provider.name).getStage()
             );
-
             const create = () => {
               this.debug('Creating docker container for ${func.handler}');
-              return docker.createContainer(
-                containerArgs(dockerImage, event, func)
-              );
+              return docker.createContainer(invokeArgs);
             };
 
             let container = await create().catch((e: any) => {
