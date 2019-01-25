@@ -2,6 +2,8 @@
 
 > npx serverless localhost
 
+<img src="assets/screenshot.png"/>
+
 ## Overview
 
 Goals
