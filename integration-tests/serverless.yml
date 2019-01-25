@@ -18,8 +18,8 @@ functions:
       include:
         - hello.py
   # python http func
-  world:
-    handler: world.handler
+  index:
+    handler: index.handler
     environment:
       BAR: boom
     package:
