@@ -5,8 +5,8 @@ import { HttpFunc } from './@types/localhost';
 import {
   CommandDescription,
   FunctionConfig,
-  ServerlessInstance,
-  ServerlessOptions
+  Options,
+  Serverless
 } from './@types/serverless';
 import { containerArgs, demux, pull, runtimeImage } from './docker';
 import { translateMethod, translatePath } from './http';
@@ -16,13 +16,13 @@ import { trapAll } from './signal';
 const DEFAULT_PORT: number = 3000;
 
 export = class Localhost {
-  readonly serverless: ServerlessInstance;
-  readonly options: ServerlessOptions;
+  readonly serverless: Serverless;
+  readonly options: Options;
   readonly commands: { [key: string]: CommandDescription };
   readonly hooks: { [key: string]: any };
   readonly debug: debug.IDebugger;
 
-  constructor(serverless: ServerlessInstance, options: ServerlessOptions) {
+  constructor(serverless: Serverless, options: Options) {
     this.debug = debug('localhost');
     this.serverless = serverless;
     this.options = options;

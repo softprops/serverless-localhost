@@ -11,7 +11,7 @@ export interface CommandDescription {
   options?: { [key: string]: CommandOption };
 }
 
-export interface ServerlessInstance {
+export interface Serverless {
   cli: {
     log(args: any): any;
     consoleLog(args: any): any;
@@ -55,7 +55,7 @@ export interface Provider {
   getStage(): string;
 }
 
-export interface ServerlessOptions {
+export interface Options {
   port?: number;
   watch?: boolean;
 }
