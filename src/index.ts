@@ -213,11 +213,9 @@ export = class Localhost {
             demux(
               (logs as unknown) as Buffer,
               (data: any) => {
-                // stderr
                 process.stderr.write(data);
               },
               (data: any) => {
-                // stdout
                 stdout.push(data);
               }
             );
