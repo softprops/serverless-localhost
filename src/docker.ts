@@ -58,6 +58,39 @@ export function runtimeImage(runtime: string): string {
 
 function debugEntrypoint(runtime: string, port: number): string[] | undefined {
   switch (runtime) {
+    case 'nodejs':
+      return [
+        '/usr/bin/node',
+        `--debug-brk=${port}`,
+        '--nolazy',
+        '--max-old-space-size=1229',
+        '--max-new-space-size=153',
+        '--max-executable-size=153',
+        '--expose-gc',
+        '/var/runtime/node_modules/awslambda/bin/awslambda'
+      ];
+    case 'nodejs4.3':
+      return [
+        '/usr/local/lib64/node-v4.3.x/bin/node',
+        `--debug-brk=${port}`,
+        '--nolazy',
+        '--max-old-space-size=2547',
+        '--max-semi-space-size=150',
+        '--max-executable-size=160',
+        '--expose-gc',
+        '/var/runtime/node_modules/awslambda/index.js'
+      ];
+    case 'nodejs6.10':
+      return [
+        '/var/lang/bin/node',
+        `--debug-brk=${port}`,
+        '--nolazy',
+        '--max-old-space-size=2547',
+        '--max-semi-space-size=150',
+        '--max-executable-size=160',
+        '--expose-gc',
+        '/var/runtime/node_modules/awslambda/index.js'
+      ];
     case 'nodejs8.10':
       return [
         '/var/lang/bin/node',
@@ -67,6 +100,30 @@ function debugEntrypoint(runtime: string, port: number): string[] | undefined {
         '--max-semi-space-size=150',
         '--max-old-space-size=2707',
         '/var/runtime/node_modules/awslambda/index.js'
+      ];
+    case 'java8':
+      return [
+        '/usr/bin/java',
+        `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=${port}`,
+        '-XX:MaxHeapSize=2834432k',
+        '-XX:MaxMetaspaceSize=163840k',
+        '-XX:ReservedCodeCacheSize=81920k',
+        '-XX:+UseSerialGC',
+        '-XX:-TieredCompilation',
+        '-Djava.net.preferIPv4Stack=true',
+        '-jar',
+        '/var/runtime/lib/LambdaJavaRTEntry-1.0.jar'
+      ];
+    case 'python2.7':
+      return ['/usr/bin/python2.7', '/var/runtime/awslambda/bootstrap.py'];
+    case 'python3.6':
+      return ['/var/lang/bin/python3.6', '/var/runtime/awslambda/bootstrap.py'];
+    case 'dotnetcore2.0':
+    case 'dotnetcore2.1':
+      return [
+        '/var/lang/bin/dotnet',
+        '/var/runtime/MockBootstraps.dll',
+        '--debugger-spin-wait'
       ];
     default:
       return undefined;
