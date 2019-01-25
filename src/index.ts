@@ -35,6 +35,11 @@ export = class Localhost {
           port: {
             usage: `Port to listen on. Default: ${DEFAULT_PORT}`,
             shortcut: 'P'
+          },
+          debugPort: {
+            usage:
+              'Debugger port to listen on. Only supported for a subset of runtimes. Default: none',
+            shortcut: 'd'
           }
         }
       }
@@ -181,7 +186,8 @@ export = class Localhost {
               dockerImage,
               event,
               func,
-              this.serverless.getProvider(svc.provider.name).getStage()
+              this.serverless.getProvider(svc.provider.name).getStage(),
+              this.options.debugPort
             );
             const create = () => {
               this.debug('Creating docker container for ${func.handler}');
@@ -233,10 +239,14 @@ export = class Localhost {
     return new Promise((resolve, reject) => {
       this.serverless.cli.log('Starting server...');
       const port = this.options.port || DEFAULT_PORT;
+      const debugPort = this.options.debugPort;
       app
         .listen(port, () => {
           this.serverless.cli.log(`Listening on port ${port}...`);
-          this.serverless.cli.log('Function routes');
+          if (debugPort) {
+            this.serverless.cli.log(`❯ Debugging enabled on port ${debugPort}`);
+          }
+          this.serverless.cli.log('❯ Function routes');
           for (let func of funcs) {
             this.serverless.cli.log(`* ${func.name}`);
             for (let event of func.events) {

@@ -1,4 +1,5 @@
 import * as Dockerode from 'dockerode';
+import { ContainerCreateOptions } from 'dockerode';
 import * as readline from 'readline';
 import * as stream from 'stream';
 import { HttpFunc } from './@types/localhost';
@@ -55,24 +56,68 @@ export function runtimeImage(runtime: string): string {
   return `lambci/lambda:${runtime}`;
 }
 
+function debugEntrypoint(runtime: string, port: number): string[] | undefined {
+  switch (runtime) {
+    case 'nodejs8.10':
+      return [
+        '/var/lang/bin/node',
+        `--inspect-brk=0.0.0.0:${port}`,
+        '--nolazy',
+        '--expose-gc',
+        '--max-semi-space-size=150',
+        '--max-old-space-size=2707',
+        '/var/runtime/node_modules/awslambda/index.js'
+      ];
+    default:
+      return undefined;
+  }
+}
+
+function exposedPorts(port: number) {
+  const ports = {};
+  ports[`${port}`] = {};
+  return ports;
+}
+
+function portBindings(containerPort: number, hostPort: number) {
+  const bindings = {};
+  bindings[`${containerPort}`] = [
+    {
+      HostPort: `${hostPort}`
+    }
+  ];
+  return bindings;
+}
+
 export function containerArgs(
   dockerImage: string,
   event: string,
   func: HttpFunc,
-  region: string
-): object {
+  region: string,
+  debugPort?: number
+): ContainerCreateOptions {
   const baseEnv = Object.keys(func.environment).reduce<string[]>(
     (res, key) => [...res, `${key}=${func.environment[key]}`],
     []
   );
+
+  const entrypoint =
+    debugPort !== undefined
+      ? debugEntrypoint(func.runtime, debugPort)
+      : undefined;
+
   return {
+    Entrypoint: (entrypoint as unknown) as string,
+    ExposedPorts: debugPort !== undefined ? exposedPorts(debugPort) : undefined,
     Image: dockerImage,
     Volumes: {
       '/var/task': {}
     },
     // todo: what ever else lambci expects
     HostConfig: {
-      Binds: [`${process.cwd()}:/var/task:ro`]
+      Binds: [`${process.cwd()}:/var/task:ro`],
+      PortBindings:
+        debugPort !== undefined ? portBindings(debugPort, debugPort) : undefined
     },
     // todo: what ever else lambci expects
     // https://github.com/lambci/docker-lambda/blob/master/provided/run/init.go

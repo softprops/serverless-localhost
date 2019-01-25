@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+
+      {
+          "name": "Attach to serverless localhost",
+          "type": "node",
+          "request": "attach",
+          "address": "localhost",
+          "port": 5858,
+          "localRoot": "${workspaceRoot}/integration-tests",
+          "remoteRoot": "/var/task",
+          "protocol": "inspector",
+          "stopOnEntry": false
+      }
+  ]
+}

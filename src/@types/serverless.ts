@@ -57,5 +57,5 @@ export interface Provider {
 
 export interface Options {
   port?: number;
-  watch?: boolean;
+  debugPort?: number;
 }
