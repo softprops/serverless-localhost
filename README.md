@@ -1,6 +1,6 @@
 # serverless localhost [![Build Status](https://travis-ci.org/softprops/serverless-localhost.svg?branch=master)](https://travis-ci.org/softprops/serverless-localhost)
 
-> npx serverless localhost
+> Host any API Gateway triggerable AWS Lambda in any Lambda runtime locally with no changes to your serverless application
 
 <img width="647" src="assets/screenshot.png"/>
 

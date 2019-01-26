@@ -56,6 +56,10 @@ export function runtimeImage(runtime: string): string {
   return `lambci/lambda:${runtime}`;
 }
 
+export function debugSupported(runtime: string): boolean {
+  return debugEntrypoint(runtime, 0) !== undefined;
+}
+
 function debugEntrypoint(runtime: string, port: number): string[] | undefined {
   switch (runtime) {
     case 'nodejs':
