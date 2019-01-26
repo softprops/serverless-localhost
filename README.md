@@ -10,7 +10,7 @@ Goals
 
 * 👩‍💻 Shorten AWS Lambda development feedback loops
 * ⚡ Integrate with your existing serverless application
-* ⛱️ Work with **all** AWS Lambda runtimes, out of the box
+* ⛱️ Work with **all** AWS Lambda runtimes out of the box
 * 🐑 Leverage [lambci project](https://github.com/lambci/) for undifferentiated heaving lifting
 
 ## 📦 Install
