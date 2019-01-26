@@ -70,9 +70,7 @@ before starting the server.
 $ FOO=bar npx serverless localhost
 ```
 
-## 🔬 Debugging
-
-## debugging applications
+### 👩‍🔬 Debugging applications
 
 Serverless localhost supports running a subset of lambda runtimes in debugging mode
 by starting the server with the debug flag `-d` providing a port for the runtimes debugger to listen on.
@@ -83,7 +81,7 @@ $ npx serverless localhost -d 5858
 
 > 💡 Debugging is supported for the following lambda runtimes `nodejs`, `nodejs4.3`, `nodejs6.10`, `nodejs8.10`, `java8`, `python2.7`, `python3.6`, `dotnetcore2.0`, `dotnetcore2.1`
 
-## debugging plugin
+### 🔬 Debugging the plugin
 
 If you find your having a problem with this plugin, you can run this plugin's command
 with the `DEBUG` environment variable set to "localhost"
@@ -99,6 +97,8 @@ Contributions are welcome. Please read [our contributing doc](CONTRIBUTING.md) f
 ---
 
 🚧 Planned work
+
+Please not this road is still being paved. The following items are planned work ahead
 
 * add support for binary requests and responses
 * debug mod for runtimes
