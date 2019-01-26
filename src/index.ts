@@ -9,7 +9,7 @@ import {
   Serverless
 } from './@types/serverless';
 import { containerArgs, demux, pull, runtimeImage } from './docker';
-import { translateMethod, translatePath } from './http';
+import { isHttpEvent, translateMethod, translatePath } from './http';
 import { apigwEvent, errorLike } from './lambda';
 import { trapAll } from './signal';
 
@@ -63,22 +63,20 @@ export = class Localhost {
       memorySize:
         func.memorySize || this.serverless.service.provider.memorySize || 1536,
       timeout: func.timeout || this.serverless.service.provider.timeout || 300,
-      events: (func.events || [])
-        .filter(event => event['http'] !== undefined)
-        .map(event => {
-          let http = event['http'];
-          if (typeof http === 'string') {
-            const [method, path] = http.split(' ');
-            return {
-              method: translateMethod(method),
-              path: translatePath(path)
-            };
-          }
+      events: (func.events || []).filter(isHttpEvent).map(event => {
+        let http = event['http'];
+        if (typeof http === 'string') {
+          const [method, path] = http.split(' ');
           return {
-            method: translateMethod(http.method),
-            path: translatePath(http.path)
+            method: translateMethod(method),
+            path: translatePath(path)
           };
-        }),
+        }
+        return {
+          method: translateMethod(http.method),
+          path: translatePath(http.path)
+        };
+      }),
       environment: Object.assign(env, func.environment)
     };
   }
@@ -126,9 +124,7 @@ export = class Localhost {
         return httpFuncs;
       }
 
-      if (
-        (func.events || []).find((event: any) => event['http'] !== undefined)
-      ) {
+      if ((func.events || []).find(isHttpEvent)) {
         httpFuncs.push(this.httpFunc(name, runtime, env, func));
       }
 

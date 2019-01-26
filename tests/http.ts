@@ -1,5 +1,5 @@
 import * as chai from 'chai';
-import { translateMethod, translatePath } from '../src/http';
+import { isHttpEvent, translateMethod, translatePath } from '../src/http';
 
 before(() => {
   chai.should();
@@ -7,6 +7,14 @@ before(() => {
 
 // https://www.chaijs.com/api/bdd/
 describe('http', () => {
+  describe('#isHttpEvent', () => {
+    it('returns true with a defined "http" key ', () => {
+      chai.expect(isHttpEvent({ http: 'GET /' })).to.eq(true);
+    });
+    it('returns false with an undefined "http" key ', () => {
+      chai.expect(isHttpEvent({ cron: 'expression' })).to.eq(false);
+    });
+  });
   describe('#translateMethod', () => {
     it('translates GET to get (upper to lowercase)', () => {
       chai.expect(translateMethod('GET')).to.eq('get');
