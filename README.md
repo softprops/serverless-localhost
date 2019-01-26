@@ -16,7 +16,7 @@ Goals
 ## 📦 Install
 
 > 💡 This plugin relies on Docker to emulate AWS Lambda runtimes. If you don't have that
-installed you can learn how to [here](https://www.docker.com/products/docker-desktop)
+installed, you can learn how to do so [here](https://www.docker.com/products/docker-desktop)
 
 Inside a serverless project directory run the following
 
