@@ -90,6 +90,38 @@ with the `DEBUG` environment variable set to "localhost"
 $ DEBUG=localhost npx serverless localhost
 ```
 
+## Comparisons
+
+### API Gateway
+
+The target usecase for serverless localhost is to emulate API Gateway triggers locally to facilitate faster feedback loops.
+The emulation is currently limited to the `LAMBDA-PROXY` integration, a flavor of integration where API Gateway passes the entire
+request to your lambda. This is the most common (and default) use in the serverless community. As such its the focus of this plugin.
+
+This plugins commitment is based on an as-needed/best-effort model. It is not a perfect emulation and as emulation features
+are needed they are provided on a best effort basis. The best emulation you will get is no emulation.
+
+### Serverless offline
+
+### Runtimes
+
+[serverless offline](https://github.com/dherault/serverless-offline) is another awesome serverless plugin which for a long time
+only focused on the nodejs lambda runtime, it recently added support for Python and Ruby. It's a more mature as its been around for longer
+but takes a different approach to emulation. It tries to implement much of the runtime itself. As a result its slow and
+sometimes reluctant to support other runtimes.
+
+Serverless localhost takes an alternate approach which enables it to support all runtimes, more faithfully out of the box but leveraging
+[lambci projects](https://github.com/lambci/) docker images which are exported copies of the actually AWS Lambda runtimes.  What you get here
+is as close as possible emulation of your deployment target and out of the box support for **all** AWS Lambda runtimes which no effort
+on behalf of this plugins contributors.
+
+### Integrations
+
+Serverless offline supports both API Gateway `LAMBDA` and `LAMBDA-PROXY` integrations. As mentioned above, this plugins focus on the more common
+and default of serverless framework, `LAMBDA-PROXY`. It's possible `LAMBDA` integration will be added in the the future but **only**
+if there is sufficient demand.
+
+
 ## 👯 Contributing
 
 Contributions are welcome. Please read [our contributing doc](CONTRIBUTING.md) for more information.
