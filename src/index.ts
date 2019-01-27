@@ -34,7 +34,7 @@ export = class Localhost {
         options: {
           port: {
             usage: `Port to listen on. Default: ${DEFAULT_PORT}`,
-            shortcut: 'P'
+            shortcut: 'p'
           },
           debugPort: {
             usage:
@@ -132,39 +132,11 @@ export = class Localhost {
     }, []);
   }
 
-  async start() {
+  async bootstrap(
+    docker: Dockerode,
+    funcs: HttpFunc[]
+  ): Promise<express.Application> {
     const svc = this.serverless.service;
-    const providerName = svc.provider.name;
-    if ('aws' !== providerName) {
-      throw Error(`Provider ${providerName} is not supported`);
-    }
-
-    // package artifacts
-    //
-    // https://gist.github.com/HyperBrain/50d38027a8f57778d5b0f135d80ea406
-    //
-    //this.serverless.cli.log(`Packaging ${svc.service} functions for local deployment...`);
-    //await this.serverless.pluginManager.spawn("package");
-
-    const funcs = this.httpFunctions();
-    if (!funcs) {
-      throw Error('This serverless service has no http functions');
-    }
-
-    const docker = new Dockerode({
-      socketPath: '/var/run/docker.sock'
-    });
-
-    // make sure we can communicate with docker
-    this.debug('pinging docker daemon');
-    await docker.ping().catch(e => {
-      throw new Error(
-        'Unable to communicate with docker. \n' +
-          `   Error: ${e.message}\n` +
-          '  Follow https://docs.docker.com/get-started/ to make sure you have docker installed \n'
-      );
-    });
-
     const app = express().disable('x-powered-by');
     for (let func of funcs) {
       for (let event of func.events) {
@@ -231,6 +203,43 @@ export = class Localhost {
         );
       }
     }
+    return app;
+  }
+
+  async start() {
+    const svc = this.serverless.service;
+    const providerName = svc.provider.name;
+    if ('aws' !== providerName) {
+      throw Error(`Provider ${providerName} is not supported`);
+    }
+
+    // package artifacts
+    //
+    // https://gist.github.com/HyperBrain/50d38027a8f57778d5b0f135d80ea406
+    //
+    //this.serverless.cli.log(`Packaging ${svc.service} functions for local deployment...`);
+    //await this.serverless.pluginManager.spawn("package");
+
+    const funcs = this.httpFunctions();
+    if (!funcs) {
+      throw Error('This serverless service has no http functions');
+    }
+
+    const docker = new Dockerode({
+      socketPath: '/var/run/docker.sock'
+    });
+
+    // make sure we can communicate with docker
+    this.debug('pinging docker daemon');
+    await docker.ping().catch(e => {
+      throw new Error(
+        'Unable to communicate with docker. \n' +
+          `   Error: ${e.message}\n` +
+          '  Follow https://docs.docker.com/get-started/ to make sure you have docker installed \n'
+      );
+    });
+
+    const app = await this.bootstrap(docker, funcs);
 
     return new Promise((resolve, reject) => {
       this.serverless.cli.log('Starting server...');
