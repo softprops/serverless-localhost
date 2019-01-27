@@ -1,6 +1,6 @@
 # serverless localhost [![Build Status](https://travis-ci.org/softprops/serverless-localhost.svg?branch=master)](https://travis-ci.org/softprops/serverless-localhost)
 
-> Host any API Gateway triggerable AWS Lambda in any Lambda runtime locally with no changes to your serverless application
+> Host __any__ API Gateway triggerable AWS Lambda in __any__ Lambda runtime locally with **no** changes to your serverless application
 
 <img width="647" src="assets/screenshot.png"/>
 
@@ -15,16 +15,16 @@ Goals
 
 ## 📦 Install
 
-> 💡 This plugin relies on Docker to emulate AWS Lambda runtimes. If you don't have that
+> 💡 This plugin relies on Docker to emulate AWS Lambda runtimes. If you don't have docker
 installed, you can learn how to do so [here](https://www.docker.com/products/docker-desktop)
 
-Inside a serverless project directory run the following
+Inside a serverless project directory, run the following
 
 ```sh
 $ npm i -D softprops/serverless-localhost
 ```
 
-Add the `serverless-localhost` to your `serverless.yml` file's
+Add `serverless-localhost` to your `serverless.yml` file's
 list of `plugins`
 
 ```yaml
@@ -51,9 +51,9 @@ Run the following in your terminal
 $ npx serverless localhost
 ```
 
-This will start a server listening on port `3000`
+This will start a server accessible via `http://localhost:3000`
 
-To start a server on an alternative port using the `-p` flag providing the desired
+To start a server on an alternative port, use the `-p` flag providing the desired
 port to listen on
 
 ```sh
@@ -61,6 +61,7 @@ $ npx serverless localhost -p 3001
 ```
 
 ### 🌏 Environment variables
+
 Environment variables defined in your `serverless.yml` will be made available inside
 the localhost server. If your `serverless.yml` is configured to source their
 values from the deployment env, i.e. `${env.FOO,''}` just export their values
@@ -92,10 +93,12 @@ $ DEBUG=localhost npx serverless localhost
 
 ### Extending
 
-The serverless [plugin model](https://serverless.com/framework/docs/providers/aws/guide/plugins/) lets you easily integrate with serverless localhost through "hooking" into plugin lifecycle events.
+The serverless [plugin model](https://serverless.com/framework/docs/providers/aws/guide/plugins/)
+lets you easily integrate custom workflows with serverless localhost through
+"hooking" into plugin lifecycle events.
 
-Serverless the localhost plugin emits a `localhost:start` event for which you can hook into the following lifecycle events
-some pre/post conditions
+The erverless localhost plugin emits a `localhost:start` event for which you can
+hook into the following lifecycle events some pre/post logic
 
 * `before:localhost:start`
 * `after:localhost:start`
