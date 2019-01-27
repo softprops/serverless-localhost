@@ -51,4 +51,5 @@ functions:
           method: get
 
 plugins:
+- localhost-hooks
 - serverless-localhost

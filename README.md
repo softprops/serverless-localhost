@@ -90,6 +90,16 @@ with the `DEBUG` environment variable set to "localhost"
 $ DEBUG=localhost npx serverless localhost
 ```
 
+### Extending
+
+The serverless [plugin model](https://serverless.com/framework/docs/providers/aws/guide/plugins/) lets you easily integrate with serverless localhost through "hooking" into plugin lifecycle events.
+
+Serverless the localhost plugin emits a `localhost:start` event for which you can hook into the following lifecycle events
+some pre/post conditions
+
+* `before:localhost:start`
+* `after:localhost:start`
+
 ## Comparisons
 
 ### API Gateway
