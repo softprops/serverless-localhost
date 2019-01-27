@@ -35,6 +35,14 @@ export interface Serverless {
   };
 }
 
+export type Cors =
+  | boolean
+  | {
+      origin?: string;
+      headers?: string[];
+      allowCredentials?: boolean;
+    };
+
 export interface FunctionConfig {
   name: string;
   handler: string;

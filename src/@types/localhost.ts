@@ -1,3 +1,5 @@
+import { Cors } from './serverless';
+
 export interface HttpFunc {
   name: string;
   qualifiedName: string;
@@ -5,6 +7,6 @@ export interface HttpFunc {
   runtime: string;
   memorySize: number;
   timeout: number;
-  events: { method: string; path: string }[];
+  events: { method: string; path: string; cors?: Cors }[];
   environment: { [key: string]: string };
 }
