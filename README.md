@@ -113,7 +113,7 @@ sometimes reluctant to support other runtimes.
 Serverless localhost takes an alternate approach which enables it to support all runtimes, more faithfully out of the box but leveraging
 [lambci projects](https://github.com/lambci/) docker images which are exported copies of the actually AWS Lambda runtimes.  What you get here
 is as close as possible emulation of your deployment target and out of the box support for **all** AWS Lambda runtimes which no effort
-on behalf of this plugins contributors.
+on behalf of this plugin's contributors.
 
 ### Integrations
 
