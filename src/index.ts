@@ -75,11 +75,11 @@ export = class Localhost {
         }
         return {
           method: translateMethod(http.method),
-          path: translatePath(http.path)
+          path: translatePath(http.path),
+          cors: event.cors
         };
       }),
       environment: Object.assign(env, func.environment)
-      cors: func.cors
     };
   }
 
