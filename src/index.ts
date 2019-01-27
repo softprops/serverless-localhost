@@ -1,3 +1,4 @@
+import * as cors from 'cors';
 import * as debug from 'debug';
 import * as Dockerode from 'dockerode';
 import * as express from 'express';
@@ -78,6 +79,7 @@ export = class Localhost {
         };
       }),
       environment: Object.assign(env, func.environment)
+      cors: func.cors
     };
   }
 
@@ -166,6 +168,7 @@ export = class Localhost {
     });
 
     const app = express().disable('x-powered-by');
+    app.use(cors());
     for (let func of funcs) {
       for (let event of func.events) {
         await app[event.method](
